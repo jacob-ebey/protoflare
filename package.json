@@ -1,0 +1,42 @@
+{
+  "name": "cloudflare-vite-get-started",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "npm run build && vite preview",
+    "deploy": "npm run build && wrangler deploy",
+    "lexgen": "lex gen-api --yes src/lexicons ./lexicons/* ./lexicons/atproto/app/bsky/*/* ./lexicons/atproto/com/atproto/*/* && pnpm format",
+    "typegen": "wrangler types && pnpm format",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "0.9.5",
+    "@cloudflare/vite-plugin": "1.13.3",
+    "@types/node": "24.5.2",
+    "prettier": "3.6.2",
+    "typescript": "5.9.2",
+    "vite": "7.1.7",
+    "vite-plugin-mkcert": "1.17.8",
+    "wrangler": "4.38.0"
+  },
+  "dependencies": {
+    "@atproto-labs/identity-resolver": "0.3.1",
+    "@atproto/common-web": "0.4.3",
+    "@atproto/identity": "0.4.9",
+    "@atproto/jwk-webcrypto": "0.1.10",
+    "@atproto/lexicon": "0.5.1",
+    "@atproto/oauth-client": "0.5.6",
+    "@atproto/oauth-types": "0.4.1",
+    "@atproto/syntax": "0.4.1",
+    "@atproto/xrpc": "0.7.5",
+    "dpop": "2.1.1",
+    "html-es6cape": "2.0.2",
+    "multiformats": "13.4.1",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-router": "7.9.1"
+  }
+}

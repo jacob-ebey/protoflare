@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cloudflare-vite-get-started",
+  "compatibility_date": "2025-04-03",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "./src/index.ts",
+  "kv_namespaces": [
+    {
+      "binding": "OAUTH_STORAGE",
+      "id": "aa5e9335a3744c648e2184a95d886ce7",
+    },
+  ],
+}
