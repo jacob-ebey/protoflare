@@ -5,17 +5,21 @@ import htmlEscape from "html-es6cape";
 
 import { AtprotoOAuthClient } from "./atproto-oauth-client";
 import { AtpBaseClient } from "./lexicons";
-import { ProfileViewDetailed } from "./lexicons/types/app/bsky/actor/defs";
 import * as StatusphereStatus from "./lexicons/types/xyz/statusphere/status";
 import {
   destroySession,
   getSession,
   sessionMiddleware,
 } from "./middleware/session";
+import type { StatusStorage } from "./storage/status";
+import { SimplifyRecord } from "./storage/utils";
+
+export { StatusStorage } from "./storage/status";
 
 const html = String.raw;
 
-const callbackPathname = "/oauth/callback";
+const oauthCallbackPathname = "/oauth/callback";
+const oauthClientMeatadataPathname = "/oauth/client-metadata.json";
 
 const validStatusList = [
   "🤔",
@@ -77,16 +81,12 @@ export default {
   fetch(request: Request) {
     const oauthClient = new AtprotoOAuthClient({
       AtpBaseClient,
-      callbackPathname,
+      callbackPathname: oauthCallbackPathname,
+      clientMetadataPathname: oauthClientMeatadataPathname,
       clientMetadata: {
         client_name: "AtprotoTest",
         client_uri: new URL("/", request.url).href,
         scope: "atproto transition:generic",
-        grant_types: ["authorization_code", "refresh_token"],
-        response_types: ["code"],
-        application_type: "web",
-        token_endpoint_auth_method: "none",
-        dpop_bound_access_tokens: true,
       },
       namespace: env.OAUTH_STORAGE,
       request,
@@ -111,8 +111,8 @@ export default {
                   `/login?${new URLSearchParams({
                     error: "Failed to restore user",
                   }).toString()}`,
-                  request.url
-                )
+                  request.url,
+                ),
               );
             }
           }
@@ -128,8 +128,12 @@ export default {
 
           switch (pathname) {
             case "/": {
-              let status: StatusphereStatus.Record | undefined;
+              let status:
+                | Awaited<ReturnType<StatusStorage["getStatus"]>>
+                | undefined;
               if (user) {
+                const statusStorage = env.STATUS.getByName(user.did);
+
                 action: if (request.method === "POST") {
                   const formData = await request.formData();
                   const status = formData.get("status");
@@ -142,23 +146,27 @@ export default {
                     break action;
                   }
 
-                  await oauthClient.xrpc.xyz.statusphere.status.create(
-                    {
-                      repo: user.did,
-                    },
+                  const statusRecord: SimplifyRecord<StatusphereStatus.Record> =
                     {
                       createdAt: new Date().toISOString(),
                       status,
-                    }
-                  );
+                    };
+
+                  const createResult =
+                    await oauthClient.xrpc.xyz.statusphere.status.create(
+                      {
+                        repo: user.did,
+                      },
+                      statusRecord,
+                    );
+
+                  await statusStorage.setStatus({
+                    ...statusRecord,
+                    uri: createResult.uri,
+                  });
                 }
 
-                const statusResponse =
-                  await oauthClient.xrpc.xyz.statusphere.status.list({
-                    repo: user.did,
-                    limit: 1,
-                  });
-                status = statusResponse.records[0]?.value;
+                status = await statusStorage.getStatus();
               }
 
               return new Response(
@@ -179,7 +187,7 @@ export default {
                                       <option value="${status}">
                                         ${status}
                                       </option>
-                                    `
+                                    `,
                                   )}
                                 </select>
                               </div>
@@ -190,13 +198,13 @@ export default {
                           `
                         : ""}
                     </section>
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
             case "/logout": {
@@ -257,16 +265,26 @@ export default {
                         </div>
                       </form>
                     </section>
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
-            case callbackPathname: {
+            case oauthClientMeatadataPathname: {
+              return new Response(
+                JSON.stringify(oauthClient.clientMetadata, null, 2),
+                {
+                  headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                  },
+                },
+              );
+            }
+            case oauthCallbackPathname: {
               const url = new URL(request.url);
               const code = url.searchParams.get("code");
               const issuer = url.searchParams.get("iss");
@@ -278,8 +296,8 @@ export default {
                     `/login?${new URLSearchParams({
                       error: "Failed to exchange code",
                     }).toString()}`,
-                    request.url
-                  )
+                    request.url,
+                  ),
                 );
               }
 
@@ -306,10 +324,11 @@ export default {
                 {
                   actor: handleOrDid,
                 },
-                { signal: request.signal }
+                { signal: request.signal },
               );
             if (profileResult.success) {
               const {
+                did,
                 handle,
                 displayName,
                 avatar,
@@ -317,6 +336,9 @@ export default {
                 followersCount,
                 followsCount,
               } = profileResult.data;
+
+              const statusStorage = env.STATUS.getByName(did);
+              const status = await statusStorage.getStatus();
 
               return new Response(
                 Document(
@@ -338,7 +360,10 @@ export default {
                           : ""}
                       </picture>
                       <div>
-                        <h1>${htmlEscape(displayName || handle)}</h1>
+                        <h1>
+                          ${htmlEscape(displayName || handle)}
+                          ${status ? htmlEscape(" " + status.status) : ""}
+                        </h1>
                         ${displayName
                           ? html` <p>@${htmlEscape(handle)}</p> `
                           : ""}
@@ -366,13 +391,13 @@ export default {
                         </ul>
                       </div>
                     </section>
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
           }
@@ -382,14 +407,14 @@ export default {
           console.error({ reason, cause: (reason as Error)?.cause });
           return new Response("Internal server error", { status: 500 });
         }
-      }
+      },
     );
   },
 };
 
 function Document(
   { head, title }: { head?: string; title: string },
-  children: string
+  children: string,
 ) {
   const session = getSession();
   const user = session.get("user");

@@ -7,6 +7,7 @@ import {
 } from "@atproto/oauth-client";
 import {
   isLoopbackHost,
+  OAuthClientMetadata,
   OAuthClientMetadataInput,
   oauthProtectedResourceMetadataSchema,
 } from "@atproto/oauth-types";
@@ -57,49 +58,62 @@ type User = {
 };
 
 export class AtprotoOAuthClient<Client extends XrpcClient> {
-  xrpc: Client;
-  clientMetadata: OAuthClientMetadataInput;
-  clientId: string;
+  #xrpc: Client;
   namespace: KVNamespace;
-  redirectURI: string;
-  state?: ClientState;
+  #clientId: string;
+  #redirectURI: string;
+  #state?: ClientState;
+  clientMetadata: OAuthClientMetadataInput;
+
+  get xrpc() {
+    return this.#xrpc;
+  }
 
   constructor({
     AtpBaseClient,
     callbackPathname,
+    clientMetadataPathname,
     clientMetadata,
     namespace,
     request,
   }: {
     AtpBaseClient: new (options: FetchHandler | FetchHandlerOptions) => Client;
     callbackPathname: string;
+    clientMetadataPathname: string;
     clientMetadata: Omit<
       OAuthClientMetadataInput,
-      "client_id" | "redirect_uris"
+      "client_id" | "redirect_uris" | "application_type"
     >;
     namespace: KVNamespace;
     request: Request;
   }) {
     this.namespace = namespace;
-    this.clientId = createClientId(
+    this.#clientId = createClientId(
       request,
       callbackPathname,
-      clientMetadata.scope
+      clientMetadataPathname,
+      clientMetadata.scope,
     );
-    this.redirectURI = getRedirectURI(request, callbackPathname);
+    this.#redirectURI = getRedirectURI(request, callbackPathname);
     this.clientMetadata = {
       ...clientMetadata,
-      client_id: this.clientId,
-      redirect_uris: [this.redirectURI],
+      application_type: "web",
+      client_id: this.#clientId,
+      redirect_uris: [this.#redirectURI],
+      grant_types: ["authorization_code", "refresh_token"],
+      response_types: ["code"],
+      token_endpoint_auth_method: "none",
+      dpop_bound_access_tokens: true,
     };
 
-    this.xrpc = new AtpBaseClient({
+    this.#xrpc = new AtpBaseClient({
       service: () => {
-        if (!this.state?.serviceEndpoint) return "https://public.api.bsky.app/";
-        return this.state.serviceEndpoint;
+        if (!this.#state?.serviceEndpoint)
+          return "https://public.api.bsky.app/";
+        return this.#state.serviceEndpoint;
       },
       fetch: (input, init) => {
-        if (this.state) {
+        if (this.#state) {
           return this.dpopFetch({
             createRequest: () => new Request(input, init),
           });
@@ -111,13 +125,13 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
 
   async restore(
     did: string,
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
     const [userState, accessToken] = await Promise.all([
       this.namespace
         .get(`user-${did}`)
         .then((userState) =>
-          userState ? (JSON.parse(userState) as UserState) : null
+          userState ? (JSON.parse(userState) as UserState) : null,
         ),
       this.namespace.get(`access-token-${did}`),
     ]);
@@ -146,7 +160,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
           new Request(new URL("/oauth/token", authServer), {
             method: "POST",
             body: new URLSearchParams({
-              client_id: this.clientId,
+              client_id: this.#clientId,
               grant_type: "refresh_token",
               refresh_token: refreshToken,
             }),
@@ -171,11 +185,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
             ...userState,
             dpopNonce: newDpopNonce,
             refreshToken: token.refresh_token,
-          } satisfies UserState)
+          } satisfies UserState),
         ),
       ]);
 
-      this.state = {
+      this.#state = {
         accessToken: token.access_token,
         authServer,
         did,
@@ -188,7 +202,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       return { did, handle, serviceEndpoint };
     }
 
-    this.state = {
+    this.#state = {
       accessToken,
       authServer,
       did,
@@ -203,16 +217,16 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
 
   async authorize(
     handle: string,
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<URL> {
     const didDoc = await resolveDidFromHandle(handle, { signal }).then((did) =>
-      resolveDidDocument(did, { signal })
+      resolveDidDocument(did, { signal }),
     );
     const pds = didDoc.service?.find(
       (service) =>
         service.type === "AtprotoPersonalDataServer" &&
         typeof service.serviceEndpoint === "string" &&
-        service.serviceEndpoint.startsWith("https://")
+        service.serviceEndpoint.startsWith("https://"),
     ) as { serviceEndpoint: string } | undefined;
     if (!pds) {
       throw new Error("Unable to find AtprotoPersonalDataServer service");
@@ -223,7 +237,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         signal,
       });
     const authServer = authorization_servers.find(
-      (server) => server && server.startsWith("https://")
+      (server) => server && server.startsWith("https://"),
     );
     if (!authServer) {
       throw new Error("Unable to find authorization server");
@@ -253,11 +267,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       } satisfies StoredAuthState),
       {
         expirationTtl: par.expires_in,
-      }
+      },
     );
 
     const redirectURL = new URL("/oauth/authorize", authServer);
-    redirectURL.searchParams.set("client_id", this.clientId);
+    redirectURL.searchParams.set("client_id", this.#clientId);
     redirectURL.searchParams.set("request_uri", par.request_uri);
     return redirectURL;
   }
@@ -272,7 +286,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       issuer: string;
       state: string;
     },
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
     const storedState = await this.namespace
       .get(`state-${state}`)
@@ -295,7 +309,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     let keypair = await DPOP.generateKeyPair("ES256", { extractable: true });
     const privateKeyPromise = crypto.subtle.exportKey(
       "jwk",
-      keypair.privateKey
+      keypair.privateKey,
     );
     const publicKeyPromise = crypto.subtle.exportKey("jwk", keypair.publicKey);
     if (signal?.aborted) throw signal.reason;
@@ -305,11 +319,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         new Request(new URL("/oauth/token", authServer), {
           method: "POST",
           body: new URLSearchParams({
-            client_id: this.clientId,
+            client_id: this.#clientId,
             code,
             code_verifier: verifier,
             grant_type: "authorization_code",
-            redirect_uri: this.redirectURI,
+            redirect_uri: this.#redirectURI,
           }),
           signal,
         }),
@@ -338,11 +352,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
           publicKey: await publicKeyPromise,
           refreshToken: token.refresh_token,
           serviceEndpoint,
-        } satisfies UserState)
+        } satisfies UserState),
       ),
     ]);
 
-    this.state = {
+    this.#state = {
       accessToken: token.access_token,
       authServer,
       did,
@@ -367,7 +381,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     }) => Request;
     retry?: boolean;
   }) {
-    const state = this.state;
+    const state = this.#state;
     if (!state) {
       throw new Error("No state available");
     }
@@ -385,18 +399,18 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       retry,
     });
     if (newDpopNonce && newDpopNonce !== state.dpopNonce) {
-      if (this.state) {
-        this.state.dpopNonce = newDpopNonce;
+      if (this.#state) {
+        this.#state.dpopNonce = newDpopNonce;
       }
       waitUntil(
         (async () => {
           const privateKeyPromise = crypto.subtle.exportKey(
             "jwk",
-            state.keypair.privateKey
+            state.keypair.privateKey,
           );
           const publicKeyPromise = crypto.subtle.exportKey(
             "jwk",
-            state.keypair.publicKey
+            state.keypair.publicKey,
           );
 
           await this.namespace.put(
@@ -409,9 +423,9 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
               publicKey: await publicKeyPromise,
               refreshToken: state.refreshToken,
               serviceEndpoint: state.serviceEndpoint,
-            } satisfies UserState)
+            } satisfies UserState),
           );
-        })()
+        })(),
       );
     }
     return response;
@@ -454,7 +468,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         method: "POST",
         body,
         signal,
-      }
+      },
     ).then((res) => ({
       ok: res.ok,
       dpopNonce: res.headers.get("DPoP-Nonce"),
@@ -479,21 +493,22 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
 function createClientId(
   request: Request,
   callbackPathname: string,
-  scope?: string
+  clientMetadataPathname: string,
+  scope?: string,
 ) {
   let clientId: string;
   const requestURL = new URL(request.url);
   if (isLoopbackHost(requestURL.hostname)) {
     const redirectURI = new URL(
       callbackPathname,
-      `http://127.0.0.1:${requestURL.port}`
+      `http://127.0.0.1:${requestURL.port}`,
     ).href;
     const clientIdURL = new URL("/", "http://localhost");
     clientIdURL.searchParams.set("redirect_uri", redirectURI);
     if (scope) clientIdURL.searchParams.set("scope", scope);
     clientId = clientIdURL.href;
   } else {
-    clientId = new URL("/", request.url).href;
+    clientId = new URL(clientMetadataPathname, request.url).href;
   }
   return clientId;
 }
@@ -504,13 +519,13 @@ function getRedirectURI(request: Request, callbackPathname: string) {
     callbackPathname,
     isLoopbackHost(requestURL.hostname)
       ? `http://127.0.0.1:${requestURL.port}`
-      : request.url
+      : request.url,
   ).href;
 }
 
 async function resolveDidFromHandle(
   handle: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const url = new URL("/.well-known/atproto-did", `https://${handle}`);
   const { ok, didPromise } = await fetch(url, {
@@ -525,7 +540,7 @@ async function resolveDidFromHandle(
   let did: string | null | undefined;
   if (!ok || !(did = await didPromise)) {
     const bskyURL = new URL(
-      "https://bsky.social/xrpc/com.atproto.identity.resolveHandle"
+      "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
     );
     bskyURL.searchParams.set("handle", handle);
     did = (await (await fetch(bskyURL)).json<{ did?: string }>())?.did;
@@ -539,7 +554,7 @@ async function resolveDidFromHandle(
 
 async function resolveDidDocument(
   did: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const { ok, documentPromise } = await fetch(`https://plc.directory/${did}`, {
     cf: {
@@ -561,11 +576,11 @@ async function resolveDidDocument(
 
 async function getOAuthProtectedResourceMetadata(
   serviceEndpoint: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const oauthEndpoint = new URL(
     "/.well-known/oauth-protected-resource",
-    serviceEndpoint
+    serviceEndpoint,
   );
   const { ok, oauthProtectedResourceMetadataPromise } = await fetch(
     oauthEndpoint,
@@ -574,7 +589,7 @@ async function getOAuthProtectedResourceMetadata(
         cacheTtl: 300,
       },
       signal,
-    }
+    },
   ).then((res) => ({
     ok: res.ok,
     oauthProtectedResourceMetadataPromise: res.json().catch(() => null),
@@ -587,12 +602,12 @@ async function getOAuthProtectedResourceMetadata(
       await oauthProtectedResourceMetadataPromise)
   ) {
     throw new Error(
-      `Failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`
+      `Failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`,
     );
   }
 
   return oauthProtectedResourceMetadataSchema.parse(
-    oauthProtectedResourceMetadata
+    oauthProtectedResourceMetadata,
   );
 }
 
@@ -621,7 +636,7 @@ async function createChallenge(verifier: string) {
 
 async function restoreKeyPair(
   privateJSONKey: JsonWebKey,
-  publicJSONKey: JsonWebKey
+  publicJSONKey: JsonWebKey,
 ) {
   const [privateKey, publicKey] = await Promise.all([
     crypto.subtle.importKey(
@@ -629,14 +644,14 @@ async function restoreKeyPair(
       privateJSONKey,
       { name: "ECDSA", namedCurve: "P-256" },
       true,
-      ["sign"]
+      ["sign"],
     ),
     crypto.subtle.importKey(
       "jwk",
       publicJSONKey,
       { name: "ECDSA", namedCurve: "P-256" },
       true,
-      ["verify"]
+      ["verify"],
     ),
   ]);
   return { privateKey, publicKey };
