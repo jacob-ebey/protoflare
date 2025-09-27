@@ -1,5 +1,6 @@
 import { env } from "cloudflare:workers";
 
+import { TID } from "@atproto/common-web";
 import { isValidHandle } from "@atproto/syntax";
 import htmlEscape from "html-es6cape";
 
@@ -11,10 +12,11 @@ import {
   getSession,
   sessionMiddleware,
 } from "./middleware/session";
-import type { StatusStorage } from "./storage/status";
+export { bindOauthClient } from "./storage/atproto-record";
 import { SimplifyRecord } from "./storage/utils";
+import { bindOauthClient } from "./storage/atproto-record";
 
-export { StatusStorage } from "./storage/status";
+export { AtprotoRecordStorage } from "./storage/atproto-record";
 
 const html = String.raw;
 
@@ -79,7 +81,7 @@ const validStatusSet = new Set(validStatusList);
 
 export default {
   fetch(request: Request) {
-    const oauthClient = new AtprotoOAuthClient({
+    let oauthClient = new AtprotoOAuthClient({
       AtpBaseClient,
       callbackPathname: oauthCallbackPathname,
       clientMetadataPathname: oauthClientMeatadataPathname,
@@ -91,6 +93,8 @@ export default {
       namespace: env.OAUTH_STORAGE,
       request,
     });
+
+    const client = bindOauthClient(env.ATPROTO_RECORDS, oauthClient);
 
     return sessionMiddleware(
       { context: new Map(), params: {}, request },
@@ -111,8 +115,8 @@ export default {
                   `/login?${new URLSearchParams({
                     error: "Failed to restore user",
                   }).toString()}`,
-                  request.url,
-                ),
+                  request.url
+                )
               );
             }
           }
@@ -128,12 +132,8 @@ export default {
 
           switch (pathname) {
             case "/": {
-              let status:
-                | Awaited<ReturnType<StatusStorage["getStatus"]>>
-                | undefined;
+              let status: StatusphereStatus.Record | undefined;
               if (user) {
-                const statusStorage = env.STATUS.getByName(user.did);
-
                 action: if (request.method === "POST") {
                   const formData = await request.formData();
                   const status = formData.get("status");
@@ -152,21 +152,18 @@ export default {
                       status,
                     };
 
-                  const createResult =
-                    await oauthClient.xrpc.xyz.statusphere.status.create(
-                      {
-                        repo: user.did,
-                      },
-                      statusRecord,
-                    );
-
-                  await statusStorage.setStatus({
-                    ...statusRecord,
-                    uri: createResult.uri,
-                  });
+                  const rkey = TID.nextStr();
+                  await client.xyz.statusphere.status.create(
+                    { repo: user.did, rkey },
+                    statusRecord
+                  );
                 }
 
-                status = await statusStorage.getStatus();
+                const statusResult = await client.xyz.statusphere.status.list({
+                  repo: user.did,
+                  limit: 1,
+                });
+                status = statusResult.records[0]?.value;
               }
 
               return new Response(
@@ -178,33 +175,36 @@ export default {
                       ${status ? html`<p>Status: ${status.status}</p>` : ""}
                       ${user
                         ? html`
-                            <form method="post">
+                            <form
+                              method="post"
+                              style="display: grid; grid-template-columns: 1fr auto;"
+                            >
                               <div>
-                                <label for="input-status">Status</label>
+                                <label for="input-status" class="sr-only"
+                                  >Status</label
+                                >
                                 <select id="input-status" name="status">
                                   ${validStatusList.map(
                                     (status) => html`
                                       <option value="${status}">
                                         ${status}
                                       </option>
-                                    `,
+                                    `
                                   )}
                                 </select>
                               </div>
-                              <div>
-                                <button type="submit">Set Status</button>
-                              </div>
+                              <button type="submit">Set Status</button>
                             </form>
                           `
                         : ""}
                     </section>
-                  `,
+                  `
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                },
+                }
               );
             }
             case "/logout": {
@@ -265,13 +265,13 @@ export default {
                         </div>
                       </form>
                     </section>
-                  `,
+                  `
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                },
+                }
               );
             }
             case oauthClientMeatadataPathname: {
@@ -281,7 +281,7 @@ export default {
                   headers: {
                     "Content-Type": "application/json; charset=utf-8",
                   },
-                },
+                }
               );
             }
             case oauthCallbackPathname: {
@@ -296,8 +296,8 @@ export default {
                     `/login?${new URLSearchParams({
                       error: "Failed to exchange code",
                     }).toString()}`,
-                    request.url,
-                  ),
+                    request.url
+                  )
                 );
               }
 
@@ -319,13 +319,14 @@ export default {
           }).exec(request.url);
           if (profileMatch) {
             const { handleOrDid } = profileMatch.pathname.groups;
-            const profileResult =
-              await oauthClient.xrpc.app.bsky.actor.getProfile(
+            const profileResult = await client.app.bsky.actor
+              .getProfile(
                 {
                   actor: handleOrDid,
                 },
-                { signal: request.signal },
-              );
+                { signal: request.signal }
+              )
+              .catch(() => ({ success: false }) as const);
             if (profileResult.success) {
               const {
                 did,
@@ -337,8 +338,11 @@ export default {
                 followsCount,
               } = profileResult.data;
 
-              const statusStorage = env.STATUS.getByName(did);
-              const status = await statusStorage.getStatus();
+              const statusResult = await client.xyz.statusphere.status.list({
+                repo: did,
+                limit: 1,
+              });
+              const status = statusResult.records[0]?.value;
 
               return new Response(
                 Document(
@@ -391,13 +395,13 @@ export default {
                         </ul>
                       </div>
                     </section>
-                  `,
+                  `
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                },
+                }
               );
             }
           }
@@ -407,14 +411,14 @@ export default {
           console.error({ reason, cause: (reason as Error)?.cause });
           return new Response("Internal server error", { status: 500 });
         }
-      },
+      }
     );
   },
 };
 
 function Document(
   { head, title }: { head?: string; title: string },
-  children: string,
+  children: string
 ) {
   const session = getSession();
   const user = session.get("user");
@@ -432,21 +436,27 @@ function Document(
       </head>
       <body>
         <header>
-          <h1>App Name</h1>
           <nav>
-            <a href="/">Home</a>
-            ${user
-              ? html`
-                  <form method="post" action="/logout">
-                    <div>
-                      <button type="submit">Logout</button>
-                    </div>
-                  </form>
-                `
-              : html` <a href="/login">Login</a>`}
+            <h1><a href="/">App Name</a></h1>
+            <ul>
+              ${user
+                ? html`
+                    <li>
+                      <form method="post" action="/logout">
+                        <div>
+                          <button type="submit">Logout</button>
+                        </div>
+                      </form>
+                    </li>
+                  `
+                : html`
+                    <li>
+                      <a href="/login">Login </a>
+                    </li>
+                  `}
+            </ul>
           </nav>
         </header>
-        <hr />
         <main>${children}</main>
       </body>
     </html>

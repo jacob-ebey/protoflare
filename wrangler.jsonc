@@ -13,8 +13,8 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "STATUS",
-        "class_name": "StatusStorage",
+        "name": "ATPROTO_RECORDS",
+        "class_name": "AtprotoRecordStorage",
       },
     ],
   },
@@ -22,6 +22,11 @@
     {
       "tag": "v1",
       "new_classes": ["StatusStorage"],
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["AtprotoRecordStorage"],
+      "deleted_classes": ["StatusStorage"],
     },
   ],
 }

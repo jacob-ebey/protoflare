@@ -3,42 +3,45 @@
 :root {
   --container-width: 960px;
   --form-width: 360px;
-  --space-sm: 0.6rem;
+  --space-sm: 0.5rem;
   --space: 1rem;
+  --space-lg: 2rem;
   --error-color: red;
 }
 
 body {
-  max-width: var(--container-width);
-  margin: auto;
-  padding: var(--space);
+  font-size: var(--space);
 }
 
-body > header {
+body > header > nav {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space);
   align-items: center;
+  padding: var(--space-sm) var(--space-lg);
+  border-bottom: 1px solid;
 }
 
-body > header > h1 {
+body > header > nav > h1 {
   font-size: 1.5rem;
 }
 
-body > header > nav {
+body > header > nav > ul {
   margin-left: auto;
   display: flex;
   gap: var(--space);
   align-items: center;
+  list-style: none;
+  padding: 0;
 }
 
 main {
-  margin-top: calc(var(--space) * 2);
+  padding: var(--space-lg);
 }
 
 form {
   display: grid;
-  gap: var(--space);
+  gap: var(--space-sm);
   max-width: var(--form-width);
 }
 
@@ -66,4 +69,21 @@ select {
   display: block;
   padding: calc(var(--space-sm) / 2) var(--space-sm);
   width: 100%;
+}
+
+button {
+  padding: calc(var(--space-sm) / 2) var(--space-sm);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  clip-path: inset(50%);
 }

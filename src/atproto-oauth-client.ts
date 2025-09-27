@@ -7,7 +7,6 @@ import {
 } from "@atproto/oauth-client";
 import {
   isLoopbackHost,
-  OAuthClientMetadata,
   OAuthClientMetadataInput,
   oauthProtectedResourceMetadataSchema,
 } from "@atproto/oauth-types";
@@ -40,7 +39,7 @@ type UserState = {
   serviceEndpoint: string;
 };
 
-type ClientState = {
+export type ClientState = {
   accessToken: string;
   authServer: string;
   did: string;
@@ -59,11 +58,14 @@ type User = {
 
 export class AtprotoOAuthClient<Client extends XrpcClient> {
   #xrpc: Client;
-  namespace: KVNamespace;
+  #namespace: KVNamespace;
   #clientId: string;
   #redirectURI: string;
-  #state?: ClientState;
+  callbackPathname: string;
+  clientMetadataPathname: string;
   clientMetadata: OAuthClientMetadataInput;
+  state?: ClientState;
+  url: string;
 
   get xrpc() {
     return this.#xrpc;
@@ -87,7 +89,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     namespace: KVNamespace;
     request: Request;
   }) {
-    this.namespace = namespace;
+    this.#namespace = namespace;
     this.#clientId = createClientId(
       request,
       callbackPathname,
@@ -95,6 +97,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       clientMetadata.scope,
     );
     this.#redirectURI = getRedirectURI(request, callbackPathname);
+
     this.clientMetadata = {
       ...clientMetadata,
       application_type: "web",
@@ -105,15 +108,17 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       token_endpoint_auth_method: "none",
       dpop_bound_access_tokens: true,
     };
+    this.callbackPathname = callbackPathname;
+    this.clientMetadataPathname = clientMetadataPathname;
+    this.url = request.url;
 
     this.#xrpc = new AtpBaseClient({
       service: () => {
-        if (!this.#state?.serviceEndpoint)
-          return "https://public.api.bsky.app/";
-        return this.#state.serviceEndpoint;
+        if (!this.state?.serviceEndpoint) return "https://public.api.bsky.app/";
+        return this.state.serviceEndpoint;
       },
       fetch: (input, init) => {
-        if (this.#state) {
+        if (this.state) {
           return this.dpopFetch({
             createRequest: () => new Request(input, init),
           });
@@ -128,12 +133,12 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
     const [userState, accessToken] = await Promise.all([
-      this.namespace
+      this.#namespace
         .get(`user-${did}`)
         .then((userState) =>
           userState ? (JSON.parse(userState) as UserState) : null,
         ),
-      this.namespace.get(`access-token-${did}`),
+      this.#namespace.get(`access-token-${did}`),
     ]);
     if (!userState) {
       throw new Error("Unable to find user state");
@@ -176,10 +181,10 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       }
 
       await Promise.all([
-        this.namespace.put(`access-token-${did}`, token.access_token, {
+        this.#namespace.put(`access-token-${did}`, token.access_token, {
           expirationTtl: token.expires_in,
         }),
-        this.namespace.put(
+        this.#namespace.put(
           `user-${did}`,
           JSON.stringify({
             ...userState,
@@ -189,7 +194,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         ),
       ]);
 
-      this.#state = {
+      this.state = {
         accessToken: token.access_token,
         authServer,
         did,
@@ -202,7 +207,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       return { did, handle, serviceEndpoint };
     }
 
-    this.#state = {
+    this.state = {
       accessToken,
       authServer,
       did,
@@ -233,7 +238,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     }
 
     const { authorization_servers = [] } =
-      await await getOAuthProtectedResourceMetadata(pds.serviceEndpoint, {
+      await getOAuthProtectedResourceMetadata(pds.serviceEndpoint, {
         signal,
       });
     const authServer = authorization_servers.find(
@@ -255,7 +260,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       verifier,
     });
 
-    await this.namespace.put(
+    await this.#namespace.put(
       `state-${state}`,
       JSON.stringify({
         authServer,
@@ -288,12 +293,12 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     },
     { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
-    const storedState = await this.namespace
+    const storedState = await this.#namespace
       .get(`state-${state}`)
       .then((state) => (state ? (JSON.parse(state) as StoredAuthState) : null))
       .catch(() => null);
 
-    await this.namespace.delete(`state-${state}`)?.catch(() => {});
+    await this.#namespace.delete(`state-${state}`)?.catch(() => {});
 
     if (!storedState?.verifier) {
       throw new Error("Unable to find state");
@@ -338,11 +343,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     const token = oauthTokenResponseSchema.parse(await tokenResponse.json());
 
     await Promise.all([
-      this.namespace.delete(`state-${state}`),
-      this.namespace.put(`access-token-${did}`, token.access_token, {
+      this.#namespace.delete(`state-${state}`),
+      this.#namespace.put(`access-token-${did}`, token.access_token, {
         expirationTtl: token.expires_in,
       }),
-      this.namespace.put(
+      this.#namespace.put(
         `user-${did}`,
         JSON.stringify({
           authServer,
@@ -356,7 +361,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       ),
     ]);
 
-    this.#state = {
+    this.state = {
       accessToken: token.access_token,
       authServer,
       did,
@@ -381,7 +386,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     }) => Request;
     retry?: boolean;
   }) {
-    const state = this.#state;
+    const state = this.state;
     if (!state) {
       throw new Error("No state available");
     }
@@ -399,8 +404,8 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       retry,
     });
     if (newDpopNonce && newDpopNonce !== state.dpopNonce) {
-      if (this.#state) {
-        this.#state.dpopNonce = newDpopNonce;
+      if (this.state) {
+        this.state.dpopNonce = newDpopNonce;
       }
       waitUntil(
         (async () => {
@@ -413,7 +418,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
             state.keypair.publicKey,
           );
 
-          await this.namespace.put(
+          await this.#namespace.put(
             `user-${state.did}`,
             JSON.stringify({
               authServer: state.authServer,
