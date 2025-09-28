@@ -94,7 +94,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       request,
       callbackPathname,
       clientMetadataPathname,
-      clientMetadata.scope
+      clientMetadata.scope,
     );
     this.#redirectURI = getRedirectURI(request, callbackPathname);
 
@@ -130,13 +130,13 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
 
   async restore(
     did: string,
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
     const [userState, accessToken] = await Promise.all([
       this.#namespace
         .get(`user-${did}`)
         .then((userState) =>
-          userState ? (JSON.parse(userState) as UserState) : null
+          userState ? (JSON.parse(userState) as UserState) : null,
         ),
       this.#namespace.get(`access-token-${did}`),
     ]);
@@ -190,7 +190,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
             ...userState,
             dpopNonce: newDpopNonce,
             refreshToken: token.refresh_token,
-          } satisfies UserState)
+          } satisfies UserState),
         ),
       ]);
 
@@ -222,16 +222,16 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
 
   async authorize(
     handle: string,
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<URL> {
     const didDoc = await resolveDidFromHandle(handle, { signal }).then((did) =>
-      resolveDidDocument(did, { signal })
+      resolveDidDocument(did, { signal }),
     );
     const pds = didDoc.service?.find(
       (service) =>
         service.type === "AtprotoPersonalDataServer" &&
         typeof service.serviceEndpoint === "string" &&
-        service.serviceEndpoint.startsWith("https://")
+        service.serviceEndpoint.startsWith("https://"),
     ) as { serviceEndpoint: string } | undefined;
     if (!pds) {
       throw new Error("Unable to find AtprotoPersonalDataServer service");
@@ -242,7 +242,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         signal,
       });
     const authServer = authorization_servers.find(
-      (server) => server && server.startsWith("https://")
+      (server) => server && server.startsWith("https://"),
     );
     if (!authServer) {
       throw new Error("Unable to find authorization server");
@@ -272,7 +272,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       } satisfies StoredAuthState),
       {
         expirationTtl: par.expires_in,
-      }
+      },
     );
 
     const redirectURL = new URL("/oauth/authorize", authServer);
@@ -291,7 +291,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
       issuer: string;
       state: string;
     },
-    { signal }: { signal?: AbortSignal } = {}
+    { signal }: { signal?: AbortSignal } = {},
   ): Promise<User> {
     const storedState = await this.#namespace
       .get(`state-${state}`)
@@ -314,7 +314,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
     let keypair = await DPOP.generateKeyPair("ES256", { extractable: true });
     const privateKeyPromise = crypto.subtle.exportKey(
       "jwk",
-      keypair.privateKey
+      keypair.privateKey,
     );
     const publicKeyPromise = crypto.subtle.exportKey("jwk", keypair.publicKey);
     if (signal?.aborted) throw signal.reason;
@@ -357,7 +357,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
           publicKey: await publicKeyPromise,
           refreshToken: token.refresh_token,
           serviceEndpoint,
-        } satisfies UserState)
+        } satisfies UserState),
       ),
     ]);
 
@@ -411,11 +411,11 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         (async () => {
           const privateKeyPromise = crypto.subtle.exportKey(
             "jwk",
-            state.keypair.privateKey
+            state.keypair.privateKey,
           );
           const publicKeyPromise = crypto.subtle.exportKey(
             "jwk",
-            state.keypair.publicKey
+            state.keypair.publicKey,
           );
 
           await this.#namespace.put(
@@ -428,9 +428,9 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
               publicKey: await publicKeyPromise,
               refreshToken: state.refreshToken,
               serviceEndpoint: state.serviceEndpoint,
-            } satisfies UserState)
+            } satisfies UserState),
           );
-        })()
+        })(),
       );
     }
     return response;
@@ -473,7 +473,7 @@ export class AtprotoOAuthClient<Client extends XrpcClient> {
         method: "POST",
         body,
         signal,
-      }
+      },
     ).then((res) => ({
       ok: res.ok,
       dpopNonce: res.headers.get("DPoP-Nonce"),
@@ -499,14 +499,14 @@ function createClientId(
   request: Request,
   callbackPathname: string,
   clientMetadataPathname: string,
-  scope?: string
+  scope?: string,
 ) {
   let clientId: string;
   const requestURL = new URL(request.url);
   if (isLoopbackHost(requestURL.hostname)) {
     const redirectURI = new URL(
       callbackPathname,
-      `http://127.0.0.1:${requestURL.port}`
+      `http://127.0.0.1:${requestURL.port}`,
     ).href;
     const clientIdURL = new URL("/", "http://localhost");
     clientIdURL.searchParams.set("redirect_uri", redirectURI);
@@ -524,13 +524,13 @@ function getRedirectURI(request: Request, callbackPathname: string) {
     callbackPathname,
     isLoopbackHost(requestURL.hostname)
       ? `http://127.0.0.1:${requestURL.port}`
-      : request.url
+      : request.url,
   ).href;
 }
 
 async function resolveDidFromHandle(
   handle: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const url = new URL("/.well-known/atproto-did", `https://${handle}`);
   const { ok, didPromise } = await fetch(url, {
@@ -545,7 +545,7 @@ async function resolveDidFromHandle(
   let did: string | null | undefined;
   if (!ok || !(did = await didPromise)) {
     const bskyURL = new URL(
-      "https://bsky.social/xrpc/com.atproto.identity.resolveHandle"
+      "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
     );
     bskyURL.searchParams.set("handle", handle);
     did = (await (await fetch(bskyURL)).json<{ did?: string }>())?.did;
@@ -559,7 +559,7 @@ async function resolveDidFromHandle(
 
 async function resolveDidDocument(
   did: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const { ok, documentPromise } = await fetch(`https://plc.directory/${did}`, {
     cf: {
@@ -581,11 +581,11 @@ async function resolveDidDocument(
 
 async function getOAuthProtectedResourceMetadata(
   serviceEndpoint: string,
-  { signal }: { signal?: AbortSignal }
+  { signal }: { signal?: AbortSignal },
 ) {
   const oauthEndpoint = new URL(
     "/.well-known/oauth-protected-resource",
-    serviceEndpoint
+    serviceEndpoint,
   );
   const { ok, oauthProtectedResourceMetadataPromise } = await fetch(
     oauthEndpoint,
@@ -594,7 +594,7 @@ async function getOAuthProtectedResourceMetadata(
         cacheTtl: 300,
       },
       signal,
-    }
+    },
   ).then((res) => ({
     ok: res.ok,
     oauthProtectedResourceMetadataPromise: res.json().catch(() => null),
@@ -607,12 +607,12 @@ async function getOAuthProtectedResourceMetadata(
       await oauthProtectedResourceMetadataPromise)
   ) {
     throw new Error(
-      `Failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`
+      `Failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`,
     );
   }
 
   return oauthProtectedResourceMetadataSchema.parse(
-    oauthProtectedResourceMetadata
+    oauthProtectedResourceMetadata,
   );
 }
 
@@ -641,7 +641,7 @@ async function createChallenge(verifier: string) {
 
 async function restoreKeyPair(
   privateJSONKey: JsonWebKey,
-  publicJSONKey: JsonWebKey
+  publicJSONKey: JsonWebKey,
 ) {
   const [privateKey, publicKey] = await Promise.all([
     crypto.subtle.importKey(
@@ -649,14 +649,14 @@ async function restoreKeyPair(
       privateJSONKey,
       { name: "ECDSA", namedCurve: "P-256" },
       true,
-      ["sign"]
+      ["sign"],
     ),
     crypto.subtle.importKey(
       "jwk",
       publicJSONKey,
       { name: "ECDSA", namedCurve: "P-256" },
       true,
-      ["verify"]
+      ["verify"],
     ),
   ]);
   return { privateKey, publicKey };

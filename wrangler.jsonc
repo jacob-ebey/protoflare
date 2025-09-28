@@ -3,7 +3,7 @@
   "name": "cloudflare-atproto-test",
   "compatibility_date": "2025-04-03",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/index.ts",
+  "main": "./src/entry.rsc.ts",
   "kv_namespaces": [
     {
       "binding": "OAUTH_STORAGE",

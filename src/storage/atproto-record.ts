@@ -3,7 +3,7 @@ import { DurableObject } from "cloudflare:workers";
 import { TID } from "@atproto/common-web";
 import { XrpcClient } from "@atproto/xrpc";
 
-import { AtprotoOAuthClient } from "../atproto-oauth-client";
+import { AtprotoOAuthClient } from "../lib/atproto-oauth-client";
 import { AtpBaseClient } from "../lexicons";
 
 const sql = String.raw;
@@ -27,12 +27,12 @@ export class AtprotoRecordStorage extends DurableObject {
     serializedState: SerializedState,
     pathSegments: string[],
     methodName: string,
-    args: any[]
+    args: any[],
   ) {
     try {
       const oauthClient = await deserializeState(
         this.env.OAUTH_STORAGE,
-        serializedState
+        serializedState,
       );
       const fullPath = pathSegments.join(".");
       let current: any = oauthClient.xrpc;
@@ -65,7 +65,7 @@ export class AtprotoRecordStorage extends DurableObject {
             `,
             args[0].rkey,
             Date.now(),
-            JSON.stringify(args[1])
+            JSON.stringify(args[1]),
           );
           if (!res.rowsWritten) {
             throw new Error("Failed to create record");
@@ -86,7 +86,7 @@ export class AtprotoRecordStorage extends DurableObject {
             ${cursor ? `WHERE createdAt ${reverse ? `>` : `<`} ${Number(cursor)}` : ``}
             ORDER BY createdAt ${reverse ? `ASC` : `DESC`}
             LIMIT ${Math.max(Math.min(limit, 100), 1)}
-          `
+          `,
         );
         const records: { uri: string; value: any }[] = [];
         let newCursor: string | undefined = undefined;
@@ -137,7 +137,7 @@ type SerializedState = {
 };
 
 async function serializeState(
-  client: AtprotoOAuthClient<any>
+  client: AtprotoOAuthClient<any>,
 ): Promise<SerializedState> {
   let restState:
     | Omit<SerializedClientState, "publicKey" | "privateKey">
@@ -177,7 +177,7 @@ async function serializeState(
 
 async function deserializeState(
   namespace: KVNamespace,
-  state: SerializedState
+  state: SerializedState,
 ): Promise<AtprotoOAuthClient<AtpBaseClient>> {
   const client = new AtprotoOAuthClient({
     AtpBaseClient,
@@ -204,7 +204,7 @@ async function deserializeState(
           namedCurve: "P-256",
         },
         true,
-        ["sign"]
+        ["sign"],
       ),
       crypto.subtle.importKey(
         "jwk",
@@ -214,7 +214,7 @@ async function deserializeState(
           namedCurve: "P-256",
         },
         true,
-        ["verify"]
+        ["verify"],
       ),
     ]);
 
@@ -236,7 +236,7 @@ type OmitKeysOf<From extends object, KeysToOmit extends object> = {
 
 export function bindOauthClient<Client extends XrpcClient>(
   STORAGE: DurableObjectNamespace<AtprotoRecordStorage>,
-  oauthClient: AtprotoOAuthClient<Client>
+  oauthClient: AtprotoOAuthClient<Client>,
 ): OmitKeysOf<Client, XrpcClient> {
   function createProxyForPath(base: any, currentPath: string[]): any {
     return new Proxy(base, {
@@ -256,13 +256,13 @@ export function bindOauthClient<Client extends XrpcClient>(
               }
 
               const storage = STORAGE.getByName(
-                `${currentPath.join(".")}--${args[0].repo}`
+                `${currentPath.join(".")}--${args[0].repo}`,
               );
               return await (storage as any).callXrpc(
                 await serializeState(oauthClient),
                 currentPath,
                 prop,
-                args
+                args,
               );
             };
           case "delete":
@@ -276,13 +276,13 @@ export function bindOauthClient<Client extends XrpcClient>(
               }
 
               const storage = STORAGE.getByName(
-                `${currentPath.join(".")}--${args[0].repo}`
+                `${currentPath.join(".")}--${args[0].repo}`,
               );
               return await (storage as any).callXrpc(
                 await serializeState(oauthClient),
                 currentPath,
                 prop,
-                args
+                args,
               );
             };
           default:

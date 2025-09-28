@@ -4,7 +4,7 @@ import { TID } from "@atproto/common-web";
 import { isValidHandle } from "@atproto/syntax";
 import htmlEscape from "html-es6cape";
 
-import { AtprotoOAuthClient } from "./atproto-oauth-client";
+import { AtprotoOAuthClient } from "./lib/atproto-oauth-client";
 import { AtpBaseClient } from "./lexicons";
 import * as StatusphereStatus from "./lexicons/types/xyz/statusphere/status";
 import * as GetTimeline from "./lexicons/types/app/bsky/feed/getTimeline";
@@ -116,8 +116,8 @@ export default {
                   `/login?${new URLSearchParams({
                     error: "Failed to restore user",
                   }).toString()}`,
-                  request.url
-                )
+                  request.url,
+                ),
               );
             }
           }
@@ -157,7 +157,7 @@ export default {
                   const rkey = TID.nextStr();
                   await client.xyz.statusphere.status.create(
                     { repo: user.did, rkey },
-                    statusRecord
+                    statusRecord,
                   );
                 }
 
@@ -198,7 +198,7 @@ export default {
                                       <option value="${status}">
                                         ${status}
                                       </option>
-                                    `
+                                    `,
                                   )}
                                 </select>
                               </div>
@@ -220,7 +220,7 @@ export default {
                                       ${post.author.avatar
                                         ? html`<img
                                             src=${htmlEscape(
-                                              post.author.avatar
+                                              post.author.avatar,
                                             )}
                                             alt=""
                                             height="50"
@@ -232,7 +232,7 @@ export default {
                                         <span>
                                           ${htmlEscape(
                                             post.author.displayName ||
-                                              "anonymous"
+                                              "anonymous",
                                           )}
                                         </span>
                                         <small id="post-heading-${index}">
@@ -242,29 +242,29 @@ export default {
                                           href="#"
                                           aria-label="Post by ${htmlEscape(
                                             post.author.displayName ||
-                                              `@${post.author.handle}`
+                                              `@${post.author.handle}`,
                                           )}, ${htmlEscape(
                                             new Intl.DateTimeFormat("en-US", {
                                               dateStyle: "full",
                                               timeStyle: "long",
                                             }).format(
                                               new Date(
-                                                post.record.createdAt as string
-                                              )
-                                            )
+                                                post.record.createdAt as string,
+                                              ),
+                                            ),
                                           )}"
                                           aria-describedby="post-body-${index}"
                                         >
                                           <time aria-hidden="true">
                                             ${htmlEscape(
                                               new Intl.DateTimeFormat(
-                                                "en-US"
+                                                "en-US",
                                               ).format(
                                                 new Date(
                                                   post.record
-                                                    .createdAt as string
-                                                )
-                                              )
+                                                    .createdAt as string,
+                                                ),
+                                              ),
                                             )}
                                           </time>
                                         </a>
@@ -272,13 +272,13 @@ export default {
                                       <div id="post-body-${index}">
                                         <p>
                                           ${htmlEscape(
-                                            post.record.text as string
+                                            post.record.text as string,
                                           )}
                                         </p>
                                       </div>
                                     </div>
                                   </article>
-                                `
+                                `,
                               )
                               .join("")}
                           </section>
@@ -296,13 +296,13 @@ export default {
                           </script>
                         `
                       : ""}
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
             case "/logout": {
@@ -363,13 +363,13 @@ export default {
                         </div>
                       </form>
                     </section>
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
             case oauthClientMeatadataPathname: {
@@ -379,7 +379,7 @@ export default {
                   headers: {
                     "Content-Type": "application/json; charset=utf-8",
                   },
-                }
+                },
               );
             }
             case oauthCallbackPathname: {
@@ -394,8 +394,8 @@ export default {
                     `/login?${new URLSearchParams({
                       error: "Failed to exchange code",
                     }).toString()}`,
-                    request.url
-                  )
+                    request.url,
+                  ),
                 );
               }
 
@@ -422,7 +422,7 @@ export default {
                 {
                   actor: handleOrDid,
                 },
-                { signal: request.signal }
+                { signal: request.signal },
               )
               .catch(() => ({ success: false }) as const);
             if (profileResult.success) {
@@ -497,13 +497,13 @@ export default {
                         </ul>
                       </div>
                     </section>
-                  `
+                  `,
                 ),
                 {
                   headers: {
                     "Content-Type": "text/html; charset=utf-8",
                   },
-                }
+                },
               );
             }
           }
@@ -513,14 +513,14 @@ export default {
           console.error({ reason, cause: (reason as Error)?.cause });
           return new Response("Internal server error", { status: 500 });
         }
-      }
+      },
     );
   },
 };
 
 function Document(
   { head, title }: { head?: string; title: string },
-  children: string
+  children: string,
 ) {
   const session = getSession();
   const user = session.get("user");
