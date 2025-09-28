@@ -7,6 +7,7 @@ import htmlEscape from "html-es6cape";
 import { AtprotoOAuthClient } from "./atproto-oauth-client";
 import { AtpBaseClient } from "./lexicons";
 import * as StatusphereStatus from "./lexicons/types/xyz/statusphere/status";
+import * as GetTimeline from "./lexicons/types/app/bsky/feed/getTimeline";
 import {
   destroySession,
   getSession,
@@ -81,7 +82,7 @@ const validStatusSet = new Set(validStatusList);
 
 export default {
   fetch(request: Request) {
-    let oauthClient = new AtprotoOAuthClient({
+    const oauthClient = new AtprotoOAuthClient({
       AtpBaseClient,
       callbackPathname: oauthCallbackPathname,
       clientMetadataPathname: oauthClientMeatadataPathname,
@@ -133,6 +134,7 @@ export default {
           switch (pathname) {
             case "/": {
               let status: StatusphereStatus.Record | undefined;
+              let feed: GetTimeline.Response["data"]["feed"] | undefined;
               if (user) {
                 action: if (request.method === "POST") {
                   const formData = await request.formData();
@@ -159,11 +161,16 @@ export default {
                   );
                 }
 
-                const statusResult = await client.xyz.statusphere.status.list({
-                  repo: user.did,
-                  limit: 1,
-                });
+                const [statusResult, feedResult] = await Promise.all([
+                  client.xyz.statusphere.status.list({
+                    repo: user.did,
+                    limit: 1,
+                  }),
+                  client.app.bsky.feed.getTimeline(),
+                ]);
                 status = statusResult.records[0]?.value;
+
+                feed = feedResult.data.feed;
               }
 
               return new Response(
@@ -171,8 +178,10 @@ export default {
                   { title: "Home" },
                   html`
                     <section>
-                      <h1>Hello, ${htmlEscape(user?.handle || "World")}!</h1>
-                      ${status ? html`<p>Status: ${status.status}</p>` : ""}
+                      <h1>
+                        Hello, ${htmlEscape(user?.handle || "World")}
+                        ${status ? htmlEscape(status.status) : ""}!
+                      </h1>
                       ${user
                         ? html`
                             <form
@@ -198,6 +207,95 @@ export default {
                           `
                         : ""}
                     </section>
+                    ${feed && feed.length
+                      ? html`
+                          <section class="cards">
+                            ${feed
+                              .map(
+                                ({ post }, index) => html`
+                                  <article
+                                    aria-labelledby="post-heading-${index}"
+                                  >
+                                    <picture>
+                                      ${post.author.avatar
+                                        ? html`<img
+                                            src=${htmlEscape(
+                                              post.author.avatar
+                                            )}
+                                            alt=""
+                                            height="50"
+                                          />`
+                                        : ""}
+                                    </picture>
+                                    <div>
+                                      <h2>
+                                        <span>
+                                          ${htmlEscape(
+                                            post.author.displayName ||
+                                              "anonymous"
+                                          )}
+                                        </span>
+                                        <small id="post-heading-${index}">
+                                          @${htmlEscape(post.author.handle)}
+                                        </small>
+                                        <a
+                                          href="#"
+                                          aria-label="Post by ${htmlEscape(
+                                            post.author.displayName ||
+                                              `@${post.author.handle}`
+                                          )}, ${htmlEscape(
+                                            new Intl.DateTimeFormat("en-US", {
+                                              dateStyle: "full",
+                                              timeStyle: "long",
+                                            }).format(
+                                              new Date(
+                                                post.record.createdAt as string
+                                              )
+                                            )
+                                          )}"
+                                          aria-describedby="post-body-${index}"
+                                        >
+                                          <time aria-hidden="true">
+                                            ${htmlEscape(
+                                              new Intl.DateTimeFormat(
+                                                "en-US"
+                                              ).format(
+                                                new Date(
+                                                  post.record
+                                                    .createdAt as string
+                                                )
+                                              )
+                                            )}
+                                          </time>
+                                        </a>
+                                      </h2>
+                                      <div id="post-body-${index}">
+                                        <p>
+                                          ${htmlEscape(
+                                            post.record.text as string
+                                          )}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </article>
+                                `
+                              )
+                              .join("")}
+                          </section>
+                          <script>
+                            const cards =
+                              document.currentScript.previousElementSibling;
+                            if (cards) {
+                              for (const card of cards.children) {
+                                card.addEventListener("click", (event) => {
+                                  const link = card.querySelector("h2 a");
+                                  if (link) link.click();
+                                });
+                              }
+                            }
+                          </script>
+                        `
+                      : ""}
                   `
                 ),
                 {
@@ -375,7 +473,7 @@ export default {
                           ${followersCount
                             ? html`
                                 <li>
-                                  ${htmlEscape(String(followersCount))}
+                                  <b>${htmlEscape(String(followersCount))}</b>
                                   followers
                                 </li>
                               `
@@ -383,13 +481,17 @@ export default {
                           ${followsCount
                             ? html`
                                 <li>
-                                  ${htmlEscape(String(followsCount))} following
+                                  <b>${htmlEscape(String(followsCount))}</b>
+                                  following
                                 </li>
                               `
                             : ""}
                           ${postsCount
                             ? html`
-                                <li>${htmlEscape(String(postsCount))} posts</li>
+                                <li>
+                                  <b>${htmlEscape(String(postsCount))}</b>
+                                  posts
+                                </li>
                               `
                             : ""}
                         </ul>
@@ -429,7 +531,10 @@ function Document(
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/3.0.1/modern-normalize.min.css"
+        />
         <link rel="stylesheet" href="/styles.css" />
         <title>${htmlEscape(title)}</title>
         ${head || ""}

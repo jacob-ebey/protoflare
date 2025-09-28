@@ -1,7 +1,7 @@
 .profile {
   display: flex;
-  grid-template-columns: 24px 1fr;
-  gap: var(--space);
+  flex-direction: column;
+  gap: calc(var(--space) * 2);
 }
 
 .profile > picture:first-of-type {
@@ -10,10 +10,11 @@
 
 .profile > picture:first-of-type img {
   aspect-ratio: 1 / 1;
-  height: 36px;
-  width: 36px;
+  height: 100%;
+  width: 100%;
   object-fit: cover;
   border-radius: 50%;
+  border: 2px solid var(--border-color);
 }
 
 .profile > div:first-of-type {
@@ -31,7 +32,7 @@
 .profile > div:first-of-type > ul:first-of-type {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space);
+  gap: var(--space-sm);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -39,15 +40,10 @@
 
 @media screen and (min-width: 600px) {
   .profile {
-    gap: calc(var(--space) * 2);
+    flex-direction: row;
   }
 
   .profile > picture:first-of-type {
     flex: 0.25;
-  }
-
-  .profile > picture:first-of-type img {
-    height: 100%;
-    width: 100%;
   }
 }
