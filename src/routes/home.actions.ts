@@ -1,6 +1,6 @@
 "use server";
 
-import { env } from "cloudflare:workers";
+import { env, waitUntil } from "cloudflare:workers";
 
 import { isValidHandle } from "@atproto/syntax";
 
@@ -23,6 +23,9 @@ export async function loginAction(
   const client = getAtprotoClient();
   let redirectURL: URL;
   try {
+    // Ensure the FirehoseListener DO is started.
+    waitUntil(env.FIREHOSE_LISTENER.getByName("main").getLastEventTime());
+
     redirectURL = await client.authorize(handle);
   } catch (reason) {
     console.error(reason);

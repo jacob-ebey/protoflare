@@ -123,6 +123,18 @@ body {
     max-width: var(--size-lg);
     margin: 0 auto;
     padding: var(--size-fluid-4);
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--size-fluid-2);
+    justify-content: space-between;
+
+    & > p {
+      margin: var(--size-fluid-1) 0;
+      & > code {
+        font-size: inherit;
+        user-select: all;
+      }
+    }
   }
 }
 

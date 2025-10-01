@@ -1,7 +1,4 @@
-import {
-  data,
-  type unstable_RSCRouteConfig as RSCRouteConfig,
-} from "react-router";
+import { type unstable_RSCRouteConfig as RSCRouteConfig } from "react-router";
 
 import {
   oauthCallbackPathname,
@@ -21,6 +18,7 @@ declare module "react-router" {
 export const routes = [
   {
     id: "root",
+    path: "",
     lazy: () => import("./root"),
     children: [
       {
@@ -47,19 +45,6 @@ export const routes = [
         id: "oauth-client-metadata",
         path: oauthClientMeatadataPathname,
         lazy: () => import("./routes/oauth-client-metadata"),
-      },
-      {
-        id: "not-fount",
-        path: "*",
-        loader: () => data(null, 404),
-        Component() {
-          return (
-            <main>
-              <h1>404 Not Found</h1>
-              <p>The page you are looking for does not exist.</p>
-            </main>
-          );
-        },
       },
     ],
   },

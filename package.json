@@ -10,6 +10,7 @@
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && wrangler deploy",
     "lexgen": "lex gen-api --yes src/lexicons ./lexicons/* ./lexicons/atproto/app/bsky/*/* ./lexicons/atproto/com/atproto/*/* && pnpm format",
+    "typecheck": "tsc --noEmit",
     "typegen": "wrangler types && pnpm format",
     "format": "prettier --write ."
   },

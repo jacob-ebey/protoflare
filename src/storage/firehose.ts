@@ -29,7 +29,7 @@ abstract class BaseFirehoseListener<
   wantedCollections: Wanted;
 
   abstract handleMessage(
-    message: JetStreamMessage<Wanted[number]>
+    message: JetStreamMessage<Wanted[number]>,
   ): void | Promise<void>;
 
   constructor(ctx: DurableObjectState, env: Env, wantedCollections: Wanted) {
@@ -71,17 +71,16 @@ abstract class BaseFirehoseListener<
       this.websocket.addEventListener("close", (event) => {
         console.info(
           "Disconnected from websocket connection to Jetstream. Resetting DO.",
-          event
+          event,
         );
         this.ctx.abort("Reset due to disconnect");
       });
       this.websocket.addEventListener("message", (event) => {
         const message: JetStreamMessage<Wanted[number]> = JSON.parse(
-          event.data as string
+          event.data as string,
         );
 
         this.lastEventTime = message.time_us;
-        // Store this in the DOs storage in case the DO is restarted.
 
         if (message.kind === "commit" && message.commit) {
           const uri = `lex:${message.commit.collection}`;
@@ -91,8 +90,9 @@ abstract class BaseFirehoseListener<
             : { success: false };
 
           if (valid.success) {
+            // Store this in the DOs storage in case the DO is restarted.
             this.ctx.waitUntil(
-              this.ctx.storage.put("lastEventTime", message.time_us)
+              this.ctx.storage.put("lastEventTime", message.time_us),
             );
             this.handleMessage(message);
           }
@@ -134,7 +134,7 @@ export class FirehoseListener extends BaseFirehoseListener<
   }
 
   override async handleMessage(
-    message: JetStreamMessage<(typeof wantedCollections)[number]>
+    message: JetStreamMessage<(typeof wantedCollections)[number]>,
   ) {
     if (message.kind === "commit" && message.commit) {
       const { $type: _, ...record } = message.commit.record;
@@ -143,11 +143,11 @@ export class FirehoseListener extends BaseFirehoseListener<
           uri: AtUri.make(
             message.did,
             message.commit.collection,
-            message.commit.rkey
+            message.commit.rkey,
           ).href,
           cid: message.commit.cid,
         },
-        record
+        record,
       );
     }
   }

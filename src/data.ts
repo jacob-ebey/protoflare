@@ -2,7 +2,21 @@ import { env } from "cloudflare:workers";
 
 import { cache } from "react";
 
-import { XyzStatusphereStatus } from "./lexicons";
+import { XyzStatusphereStatus } from "~/lexicons";
+import {
+  resolveDidDocument,
+  resolveDidFromHandle,
+} from "~/lib/atproto-oauth-client";
+
+export const getDidDocument = cache(resolveDidDocument);
+
+export const getDidFromDidOrHandle = cache(async (didOrHandle: string) => {
+  if (didOrHandle.startsWith("did:")) {
+    return didOrHandle;
+  }
+
+  return resolveDidFromHandle(didOrHandle).catch(() => undefined);
+});
 
 export const getStatusByDid = cache(async (did: string) => {
   const local = await env.PDS.getByName(did).listRecords({

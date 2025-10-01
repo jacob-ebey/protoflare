@@ -2,11 +2,13 @@
 
 import {
   href,
+  isRouteErrorResponse,
   Link,
   Links,
   Meta,
   Outlet,
   ScrollRestoration,
+  useRouteError,
   type ShouldRevalidateFunction,
 } from "react-router";
 
@@ -15,7 +17,6 @@ import { Button } from "~/components/ui/button";
 import { logoutAction } from "./root.actions";
 
 import "./root.css";
-import { Suspense } from "react";
 
 export const shouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
@@ -80,7 +81,14 @@ export function ClientLayout({
           </nav>
         </header>
         {children}
-        <footer>Served from {location}</footer>
+        <footer>
+          <p>Served from: {location}</p>
+          {user ? (
+            <p>
+              User ID: <code>{user.did}</code>
+            </p>
+          ) : null}
+        </footer>
         <ScrollRestoration />
       </body>
     </html>
@@ -92,14 +100,28 @@ export function ClientRoot() {
 }
 
 export function ClientErrorBoundary() {
+  const error = useRouteError();
+
+  let message = "Unknown Error";
+  let details = "Sorry, an unexpected error has occurred.";
+
+  if (isRouteErrorResponse(error)) {
+    message = `${error.status}: Application Error`;
+
+    switch (error.status) {
+      case 404:
+        message = "404: Not Found";
+        details = "Sorry, the page you requested could not be found.";
+        break;
+    }
+  }
+
   return (
     <main>
-      <h1>Application Error</h1>
-      <p>Sorry, an unexpected error has occurred.</p>
-      <p>
-        Please try refreshing the page, or{" "}
-        <a href="mailto:support@example.com">contact support</a>.
-      </p>
+      <section>
+        <h1>{message}</h1>
+        <p>{details}</p>
+      </section>
     </main>
   );
 }
