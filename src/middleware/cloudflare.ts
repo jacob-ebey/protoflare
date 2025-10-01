@@ -1,12 +1,12 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
 const asyncCloudflareStorage = new AsyncLocalStorage<
-  IncomingRequestCfProperties<unknown> | undefined
+  CfProperties<unknown> | undefined
 >();
 
 export function provideCloudflareContext<T>(
-  cf: IncomingRequestCfProperties<unknown> | undefined,
-  fn: () => T
+  cf: CfProperties<unknown> | undefined,
+  fn: () => T,
 ) {
   return asyncCloudflareStorage.run(cf, fn);
 }

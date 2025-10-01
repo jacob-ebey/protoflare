@@ -13,6 +13,7 @@ declare module "react-router" {
     pages: {
       "/": { params: {} };
       "/about": { params: {} };
+      "/status/:didOrHandle": { params: { didOrHandle: string } };
     };
   }
 }
@@ -31,6 +32,11 @@ export const routes = [
         id: "about",
         path: "/about",
         lazy: () => import("./routes/about"),
+      },
+      {
+        id: "status",
+        path: "/status/:didOrHandle",
+        lazy: () => import("./routes/status"),
       },
       {
         id: "oauth-callback",

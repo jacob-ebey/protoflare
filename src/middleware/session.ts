@@ -23,7 +23,7 @@ const asyncSessionStorage = new AsyncLocalStorage<SessionContext>();
 
 export const sessionMiddleware: MiddlewareFunction = async (
   { request },
-  next
+  next,
 ) => {
   const SESSION_SECRET = env.SESSION_SECRET;
   if (!SESSION_SECRET) {

@@ -528,9 +528,9 @@ function getRedirectURI(request: Request, callbackPathname: string) {
   ).href;
 }
 
-async function resolveDidFromHandle(
+export async function resolveDidFromHandle(
   handle: string,
-  { signal }: { signal?: AbortSignal },
+  { signal }: { signal?: AbortSignal } = {},
 ) {
   const url = new URL("/.well-known/atproto-did", `https://${handle}`);
   const { ok, didPromise } = await fetch(url, {
@@ -538,10 +538,12 @@ async function resolveDidFromHandle(
       cacheTtl: 300,
     },
     signal,
-  }).then((res) => ({
-    ok: res.ok,
-    didPromise: res.text().catch(() => null),
-  }));
+  })
+    .then((res) => ({
+      ok: res.ok,
+      didPromise: res.text().catch(() => null),
+    }))
+    .catch(() => ({ ok: false, didPromise: Promise.resolve(null) }));
   let did: string | null | undefined;
   if (!ok || !(did = await didPromise)) {
     const bskyURL = new URL(
@@ -557,9 +559,9 @@ async function resolveDidFromHandle(
   return did;
 }
 
-async function resolveDidDocument(
+export async function resolveDidDocument(
   did: string,
-  { signal }: { signal?: AbortSignal },
+  { signal }: { signal?: AbortSignal } = {},
 ) {
   const { ok, documentPromise } = await fetch(`https://plc.directory/${did}`, {
     cf: {

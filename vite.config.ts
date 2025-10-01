@@ -17,8 +17,8 @@ export default defineConfig({
     react(),
     rsc({
       entries: {
-        client: "./src/framework/entry.browser.tsx",
-        ssr: "./src/framework/entry.ssr.tsx",
+        client: "./framework/entry.browser.tsx",
+        ssr: "./framework/entry.ssr.tsx",
       },
       serverHandler: false,
       loadModuleDevProxy: true,

@@ -16,7 +16,7 @@ const asyncAtprotoStorage = new AsyncLocalStorage<
 
 export const atprotoMiddleware: MiddlewareFunction = async (
   { request },
-  next
+  next,
 ) => {
   const oauthClient = new AtprotoOAuthClient({
     AtpBaseClient,

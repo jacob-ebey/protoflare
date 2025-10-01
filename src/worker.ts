@@ -1,7 +1,18 @@
+import { handleRequest } from "framework/server";
+
+import { provideCloudflareContext } from "~/middleware/cloudflare";
+import { routes } from "~/routes";
+
+export { FirehoseListener } from "./storage/firehose";
 export { PDS, RepoStorage } from "./storage/pds";
 
-export { default } from "./framework/entry.rsc";
+export default {
+  async fetch(request, env, ctx) {
+    // Ensure the FirehoseListener DO is started.
+    ctx.waitUntil(env.FIREHOSE_LISTENER.getByName("main").getLastEventTime());
 
-if (import.meta.hot) {
-  import.meta.hot.accept();
-}
+    return provideCloudflareContext(request.cf, () =>
+      handleRequest(request, routes),
+    );
+  },
+} satisfies ExportedHandler<Env>;

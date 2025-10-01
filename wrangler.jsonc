@@ -17,6 +17,10 @@
   "durable_objects": {
     "bindings": [
       {
+        "name": "FIREHOSE_LISTENER",
+        "class_name": "FirehoseListener",
+      },
+      {
         "name": "PDS",
         "class_name": "PDS",
       },
@@ -31,6 +35,10 @@
       "tag": "v1",
       "new_classes": ["PDS"],
       "new_sqlite_classes": ["RepoStorage"],
+    },
+    {
+      "tag": "v2",
+      "new_classes": ["FirehoseListener"],
     },
   ],
 }
