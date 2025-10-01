@@ -142,15 +142,17 @@ body {
   }
 }
 
-form {
+.react-aria-Form {
   display: grid;
   gap: var(--space-sm);
   max-width: var(--form-width);
+}
 
-  & [id$="-error"] {
-    color: var(--color-error);
-  }
+.react-aria-FieldError {
+  color: var(--color-error);
+}
 
+form {
   & > div:has(input[type="text"]),
   & > div:has(select) {
     display: grid;
@@ -178,7 +180,7 @@ form {
   }
 }
 
-button {
+.react-aria-Button {
   background: white;
   font-size: medium;
   border-radius: 4px;

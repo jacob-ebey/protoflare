@@ -19,16 +19,11 @@ type SessionContext = {
   sessionStorage: SessionStorage<SessionData, SessionData>;
 };
 
-declare global {
-  var ___RR_SESSION___: AsyncLocalStorage<SessionContext>;
-}
-
-const asyncSessionStorage = (globalThis.___RR_SESSION___ ??=
-  new AsyncLocalStorage());
+const asyncSessionStorage = new AsyncLocalStorage<SessionContext>();
 
 export const sessionMiddleware: MiddlewareFunction = async (
   { request },
-  next,
+  next
 ) => {
   const SESSION_SECRET = env.SESSION_SECRET;
   if (!SESSION_SECRET) {
@@ -65,10 +60,10 @@ export const sessionMiddleware: MiddlewareFunction = async (
   });
 };
 
-export function getSession(): Session<SessionData, SessionData> {
+export function getSession(): Session<SessionData, SessionData> | null {
   const ctx = asyncSessionStorage.getStore();
   if (!ctx) {
-    throw new Error("No session context");
+    return null;
   }
   return ctx.session;
 }

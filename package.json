@@ -21,11 +21,14 @@
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.4",
     "@vitejs/plugin-rsc": "0.4.32",
+    "modern-normalize": "3.0.1",
+    "open-props": "1.7.16",
     "prettier": "3.6.2",
     "typescript": "5.9.2",
     "vite": "7.1.7",
     "vite-plugin-devtools-json": "1.0.0",
     "vite-plugin-mkcert": "1.17.8",
+    "vite-tsconfig-paths": "5.1.4",
     "wrangler": "4.40.2"
   },
   "dependencies": {
@@ -39,10 +42,12 @@
     "@atproto/syntax": "0.4.1",
     "@atproto/xrpc": "0.7.5",
     "dpop": "2.1.1",
+    "effect": "3.17.14",
     "html-es6cape": "2.0.2",
     "multiformats": "13.4.1",
     "react": "19.1.1",
+    "react-aria-components": "1.12.2",
     "react-dom": "19.1.1",
-    "react-router": "7.9.3"
+    "react-router": "0.0.0-experimental-ec0227194"
   }
 }

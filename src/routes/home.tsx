@@ -1,17 +1,15 @@
-import { Suspense } from "react";
+import { getStatusByDid } from "~/data";
+import { getSession } from "~/middleware/session";
 
-export default function Home() {
+import { LoginForm, StatusForm } from "./home.client";
+
+export default async function Home() {
+  const session = getSession();
+  const user = session?.get("user");
+
+  const status = user ? await getStatusByDid(user.did) : null;
+
   return (
-    <>
-      <h1>Hello, world!</h1>
-      <Suspense fallback={<p>Loading async data...</p>}>
-        <AsyncData />
-      </Suspense>
-    </>
+    <main>{!user ? <LoginForm /> : <StatusForm status={status?.value} />}</main>
   );
-}
-
-async function AsyncData() {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return <p>This data was loaded asynchronously!</p>;
 }

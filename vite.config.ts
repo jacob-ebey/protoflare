@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import rsc from "@vitejs/plugin-rsc";
 import { defineConfig } from "vite";
 import devtools from "vite-plugin-devtools-json";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   server: {
@@ -16,15 +17,21 @@ export default defineConfig({
     react(),
     rsc({
       entries: {
-        client: "./src/entry.browser.tsx",
-        ssr: "./src/entry.ssr.tsx",
+        client: "./src/framework/entry.browser.tsx",
+        ssr: "./src/framework/entry.ssr.tsx",
       },
       serverHandler: false,
       loadModuleDevProxy: true,
     }),
+    tsconfigPaths(),
     devtools(),
   ],
   environments: {
+    client: {
+      optimizeDeps: {
+        include: ["react-router/internal/react-server-client"],
+      },
+    },
     rsc: {
       build: {
         rollupOptions: {
@@ -45,6 +52,9 @@ export default defineConfig({
         // build `ssr` inside `rsc` directory so that
         // wrangler can deploy self-contained `dist/rsc`
         outDir: "./dist/rsc/ssr",
+      },
+      optimizeDeps: {
+        include: ["react-router/internal/react-server-client"],
       },
       resolve: {
         noExternal: true,

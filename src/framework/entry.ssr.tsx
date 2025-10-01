@@ -15,7 +15,7 @@ import {
 
 export async function prerender(
   _request: Request | SerializedRequest,
-  _serverResponse: Response | SerializedResponse
+  _serverResponse: Response | SerializedResponse,
 ) {
   const request = deserializeRequest(_request);
   const serverResponse = deserializeResponse(_serverResponse);
@@ -38,7 +38,7 @@ export async function prerender(
           bootstrapScriptContent,
           formState,
           signal: request.signal,
-        }
+        },
       );
     },
   });

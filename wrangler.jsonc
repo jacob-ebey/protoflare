@@ -3,7 +3,11 @@
   "name": "cloudflare-atproto-test",
   "compatibility_date": "2025-04-03",
   "compatibility_flags": ["nodejs_compat"],
-  "main": "./src/entry.rsc.ts",
+  "main": "./src/worker.ts",
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
   "kv_namespaces": [
     {
       "binding": "OAUTH_STORAGE",
@@ -13,20 +17,20 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "ATPROTO_RECORDS",
-        "class_name": "AtprotoRecordStorage",
+        "name": "PDS",
+        "class_name": "PDS",
+      },
+      {
+        "name": "REPO",
+        "class_name": "RepoStorage",
       },
     ],
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_classes": ["StatusStorage"],
-    },
-    {
-      "tag": "v2",
-      "new_sqlite_classes": ["AtprotoRecordStorage"],
-      "deleted_classes": ["StatusStorage"],
+      "new_classes": ["PDS"],
+      "new_sqlite_classes": ["RepoStorage"],
     },
   ],
 }

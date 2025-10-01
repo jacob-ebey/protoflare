@@ -52,10 +52,10 @@ if (import.meta.hot) {
       __reactRouterHdrActive?: boolean;
     };
     try {
-      globalVar.__reactRouterHdrActive = true;
+      // globalVar.__reactRouterHdrActive = true;
       await globalVar.__reactRouterDataRouter.revalidate();
     } finally {
-      globalVar.__reactRouterHdrActive = false;
+      // globalVar.__reactRouterHdrActive = false;
     }
   });
 }
