@@ -18,8 +18,8 @@
     "@atproto/lex-cli": "0.9.5",
     "@cloudflare/vite-plugin": "1.13.7",
     "@types/node": "24.5.2",
-    "@types/react": "19.1.15",
-    "@types/react-dom": "19.1.9",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
     "@vitejs/plugin-react": "5.0.4",
     "@vitejs/plugin-rsc": "0.4.32",
     "modern-normalize": "3.0.1",
@@ -46,9 +46,9 @@
     "effect": "3.17.14",
     "html-es6cape": "2.0.2",
     "multiformats": "13.4.1",
-    "react": "19.1.1",
+    "react": "19.2.0",
     "react-aria-components": "1.12.2",
-    "react-dom": "19.1.1",
+    "react-dom": "19.2.0",
     "react-router": "0.0.0-experimental-ec0227194"
   }
 }
