@@ -12,6 +12,7 @@ import {
   type SerializedRequest,
   type SerializedResponse,
 } from "./transport-tools";
+import { ERROR_BOUNDARY_ERROR, ERROR_DIGEST_BASE } from "./shared";
 
 export async function prerender(
   _request: Request | SerializedRequest,
@@ -20,7 +21,11 @@ export async function prerender(
   const request = deserializeRequest(_request);
   const serverResponse = deserializeResponse(_serverResponse);
 
-  const response = await routeRSCServerRequest({
+  let status: number | undefined;
+  let statusText: string | undefined;
+  let location: string | undefined;
+
+  const ssrResponse = await routeRSCServerRequest({
     request,
     createFromReadableStream,
     fetchServer: () => Promise.resolve(serverResponse),
@@ -38,10 +43,34 @@ export async function prerender(
           bootstrapScriptContent,
           formState,
           signal: request.signal,
+          onError(error) {
+            if (
+              typeof error === "object" &&
+              error &&
+              "digest" in error &&
+              typeof error.digest === "string" &&
+              error.digest.startsWith(`${ERROR_DIGEST_BASE}[`) &&
+              error.digest.endsWith("]")
+            ) {
+              return error.digest;
+            }
+          },
         },
       );
     },
   });
+
+  let response = ssrResponse;
+
+  if (typeof status === "number") {
+    response = new Response(ssrResponse.body, {
+      cf: ssrResponse.cf,
+      headers: ssrResponse.headers,
+      status,
+      statusText,
+      webSocket: ssrResponse.webSocket,
+    });
+  }
 
   return serializeResponse(response);
 }

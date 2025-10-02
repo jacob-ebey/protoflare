@@ -10,7 +10,8 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "framework/server": ["framework/entry.rsc.ts"],
+      "framework/client": ["framework/client.ts"],
+      "framework/server": ["framework/server.ts"],
       "~/*": ["src/*"]
     }
   }

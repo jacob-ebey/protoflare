@@ -1,4 +1,6 @@
-import { Register } from "react-router";
+import { BoundaryError } from "framework/server";
+import type { Register } from "react-router";
+
 import { getDidDocument, getDidFromDidOrHandle, getStatusByDid } from "~/data";
 
 export default async function Status({
@@ -8,7 +10,10 @@ export default async function Status({
   const didDoc = did ? await getDidDocument(did) : undefined;
 
   if (!didDoc) {
-    throw new Error("DID Document not found");
+    throw new BoundaryError({
+      status: 404,
+      statusText: "Could not find DID or handle",
+    });
   }
 
   const status = await getStatusByDid(didDoc.id);

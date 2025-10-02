@@ -1,8 +1,8 @@
 "use client";
 
+import { isRouteErrorResponse } from "framework/client";
 import {
   href,
-  isRouteErrorResponse,
   Link,
   Links,
   Meta,
@@ -102,25 +102,32 @@ export function ClientRoot() {
 export function ClientErrorBoundary() {
   const error = useRouteError();
 
-  let message = "Unknown Error";
-  let details = "Sorry, an unexpected error has occurred.";
+  let status: number;
+  let message: string;
 
-  if (isRouteErrorResponse(error)) {
-    message = `${error.status}: Application Error`;
+  const errorResponse = isRouteErrorResponse(error);
+  if (errorResponse) {
+    status = errorResponse.status;
+    if (errorResponse.statusText) {
+      message = errorResponse.statusText;
+    }
 
-    switch (error.status) {
+    switch (status) {
       case 404:
-        message = "404: Not Found";
-        details = "Sorry, the page you requested could not be found.";
+        message ??= "Page not found.";
         break;
     }
+  } else {
+    status = 500;
   }
+
+  message ??= "Sorry, an unexpected error has occurred.";
 
   return (
     <main>
       <section>
-        <h1>{message}</h1>
-        <p>{details}</p>
+        <h1>{status}</h1>
+        <p>{message}</p>
       </section>
     </main>
   );
