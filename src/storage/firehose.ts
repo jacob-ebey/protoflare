@@ -51,59 +51,57 @@ abstract class BaseFirehoseListener<
   }
 
   async startLoop() {
-    this.ctx.blockConcurrencyWhile(async () => {
-      let url = new URL("wss://jetstream1.us-west.bsky.network/subscribe");
-      // "?wantedCollections=xyz.statusphere.status";
-      // url += "&cursor=" + this.lastEventTime;
-      url.searchParams.set("cursor", String(this.lastEventTime));
-      for (const collection of this.wantedCollections) {
-        url.searchParams.append("wantedCollections", collection);
-      }
+    let url = new URL("wss://jetstream1.us-west.bsky.network/subscribe");
+    // "?wantedCollections=xyz.statusphere.status";
+    // url += "&cursor=" + this.lastEventTime;
+    url.searchParams.set("cursor", String(this.lastEventTime));
+    for (const collection of this.wantedCollections) {
+      url.searchParams.append("wantedCollections", collection);
+    }
 
-      console.info("Connecting to ", url.href);
-      this.websocket = new WebSocket(url);
-      this.websocket.addEventListener("open", (event) => {
-        console.info("Connected to Jetstream.");
-      });
-      this.websocket.addEventListener("error", (err) => {
-        console.error("Got error from WebSocket: ", err);
-        this.resetAlarm();
-      });
-      this.websocket.addEventListener("close", (event) => {
-        console.info(
-          "Disconnected from websocket connection to Jetstream. Resetting DO.",
-          event,
-        );
-        this.ctx.abort("Reset due to disconnect");
-      });
-      this.websocket.addEventListener("message", (event) => {
-        const message: JetStreamMessage<Wanted[number]> = JSON.parse(
-          event.data as string,
-        );
+    console.info("Connecting to ", url.href);
+    this.websocket = new WebSocket(url);
+    this.websocket.addEventListener("open", (event) => {
+      console.info("Connected to Jetstream.");
+    });
+    this.websocket.addEventListener("error", (err) => {
+      console.error("Got error from WebSocket: ", err);
+      this.resetAlarm();
+    });
+    this.websocket.addEventListener("close", (event) => {
+      console.info(
+        "Disconnected from websocket connection to Jetstream. Resetting DO.",
+        event,
+      );
+      this.ctx.abort("Reset due to disconnect");
+    });
+    this.websocket.addEventListener("message", (event) => {
+      const message: JetStreamMessage<Wanted[number]> = JSON.parse(
+        event.data as string,
+      );
 
-        this.lastEventTime = message.time_us;
+      this.lastEventTime = message.time_us;
 
-        if (message.kind === "commit" && message.commit) {
-          const uri = `lex:${message.commit.collection}`;
-          const lexicon = lexicons.get(uri);
-          const valid = lexicon
-            ? message.commit.operation === "create"
-              ? lexicons.validate(uri, message.commit.record)
-              : { success: true }
-            : { success: false };
+      if (message.kind === "commit" && message.commit) {
+        const uri = `lex:${message.commit.collection}`;
+        const lexicon = lexicons.get(uri);
+        const valid = lexicon
+          ? message.commit.operation === "create"
+            ? lexicons.validate(uri, message.commit.record)
+            : { success: true }
+          : { success: false };
 
-          if (valid.success) {
-            this.handleMessage(message)
-              .then(() => {
-                // Store this in the DOs storage in case the DO is restarted.
-                this.ctx.waitUntil(
-                  this.ctx.storage.put("lastEventTime", message.time_us),
-                );
-              })
-              .catch(console.error);
-          }
+        if (valid.success) {
+          this.handleMessage(message)
+            .then(() => {
+              // Store this in the DOs storage in case the DO is restarted.
+              this.ctx.waitUntil(
+                this.ctx.storage.put("lastEventTime", message.time_us),
+              );
+            })
+            .catch(console.error);
         }
-      });
+      }
     });
 
     await this.resetAlarm();
