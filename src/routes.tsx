@@ -10,7 +10,9 @@ declare module "react-router" {
     pages: {
       "/": { params: {} };
       "/about": { params: {} };
-      "/status/:didOrHandle": { params: { didOrHandle: string } };
+      "/status/:didOrHandle": {
+        params: { didOrHandle: string };
+      };
     };
   }
 }
