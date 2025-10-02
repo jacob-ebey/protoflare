@@ -31,13 +31,6 @@ export const atprotoMiddleware: MiddlewareFunction = async (
     request,
   });
 
-  // oauthClient.xrpc.com.atproto.repo.getRecord({
-  //   collection
-  //   repo
-  //   rkey
-  //   cid
-  // })
-
   const session = getSession();
   const user = session?.get("user");
   if (user) {
