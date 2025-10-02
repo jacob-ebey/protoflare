@@ -48,6 +48,38 @@ export class PDS extends DurableObject {
     );
   }
 
+  async deleteRecord({
+    collection,
+    repo,
+    rkey,
+  }: {
+    collection: string;
+    repo: string;
+    rkey: string;
+  }) {
+    const {
+      env: { REPO },
+    } = this;
+
+    const deleteRecord = Effect.tryPromise(async () =>
+      REPO.getByName(repo).deleteRecord({ collection, repo, rkey }),
+    );
+
+    return await Effect.runPromise(
+      Effect.gen(function* () {
+        const deleteResult = yield* Effect.either(deleteRecord);
+        if (Either.isLeft(deleteResult)) {
+          yield* Effect.logError(
+            "Failed to call REPO.deleteRecord",
+            deleteResult.left,
+          );
+          return { success: false };
+        }
+        return { success: true };
+      }),
+    );
+  }
+
   async listRecords({
     collection,
     cursor,
@@ -134,16 +166,41 @@ export class RepoStorage extends DurableObject {
     );
   }
 
-  async getRecord({
-    cid,
+  async deleteRecord({
     collection,
+    repo,
     rkey,
   }: {
-    cid?: string;
     collection: string;
+    repo: string;
     rkey: string;
   }) {
-    //
+    const {
+      storage: { sql },
+    } = this.ctx;
+
+    return await Effect.runPromise(
+      Effect.gen(function* () {
+        const res = yield* Effect.either(
+          Effect.try(() =>
+            sql.exec(
+              /* SQL */ `
+            DELETE FROM records
+            WHERE collection = ? AND repo = ? AND rkey = ?;
+          `,
+              collection,
+              repo,
+              rkey,
+            ),
+          ),
+        );
+        if (Either.isLeft(res)) {
+          yield* Effect.logError("Failed to delete record", res.left);
+          return { success: false };
+        }
+        return { success: true };
+      }),
+    );
   }
 
   async listRecords({

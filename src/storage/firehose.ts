@@ -136,19 +136,35 @@ export class FirehoseListener extends BaseFirehoseListener<
   override async handleMessage(
     message: JetStreamMessage<(typeof wantedCollections)[number]>,
   ) {
-    if (message.kind === "commit" && message.commit) {
-      const { $type: _, ...record } = message.commit.record;
-      this.env.PDS.getByName(message.did).createRecord(
-        {
-          uri: AtUri.make(
-            message.did,
-            message.commit.collection,
-            message.commit.rkey,
-          ).href,
-          cid: message.commit.cid,
-        },
-        record,
-      );
+    if (message.kind === "commit") {
+      switch (message.commit?.operation) {
+        case "create": {
+          const { $type: _, ...record } = message.commit.record;
+          this.ctx.waitUntil(
+            this.env.PDS.getByName(message.did).createRecord(
+              {
+                uri: AtUri.make(
+                  message.did,
+                  message.commit.collection,
+                  message.commit.rkey,
+                ).href,
+                cid: message.commit.cid,
+              },
+              record,
+            ),
+          );
+          break;
+        }
+        case "delete":
+          this.ctx.waitUntil(
+            this.env.PDS.getByName(message.did).deleteRecord({
+              collection: message.commit.collection,
+              repo: message.did,
+              rkey: message.commit.rkey,
+            }),
+          );
+          break;
+      }
     }
   }
 }
