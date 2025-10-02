@@ -30,7 +30,7 @@ abstract class BaseFirehoseListener<
 
   abstract handleMessage(
     message: JetStreamMessage<Wanted[number]>,
-  ): void | Promise<void>;
+  ): Promise<void>;
 
   constructor(ctx: DurableObjectState, env: Env, wantedCollections: Wanted) {
     super(ctx, env);
@@ -67,6 +67,7 @@ abstract class BaseFirehoseListener<
       });
       this.websocket.addEventListener("error", (err) => {
         console.error("Got error from WebSocket: ", err);
+        this.resetAlarm();
       });
       this.websocket.addEventListener("close", (event) => {
         console.info(
@@ -86,15 +87,20 @@ abstract class BaseFirehoseListener<
           const uri = `lex:${message.commit.collection}`;
           const lexicon = lexicons.get(uri);
           const valid = lexicon
-            ? lexicons.validate(uri, message.commit.record)
+            ? message.commit.operation === "create"
+              ? lexicons.validate(uri, message.commit.record)
+              : { success: true }
             : { success: false };
 
           if (valid.success) {
-            // Store this in the DOs storage in case the DO is restarted.
-            this.ctx.waitUntil(
-              this.ctx.storage.put("lastEventTime", message.time_us),
-            );
-            this.handleMessage(message);
+            this.handleMessage(message)
+              .then(() => {
+                // Store this in the DOs storage in case the DO is restarted.
+                this.ctx.waitUntil(
+                  this.ctx.storage.put("lastEventTime", message.time_us),
+                );
+              })
+              .catch(console.error);
           }
         }
       });
@@ -137,6 +143,9 @@ export class FirehoseListener extends BaseFirehoseListener<
     message: JetStreamMessage<(typeof wantedCollections)[number]>,
   ) {
     if (message.kind === "commit") {
+      if (message.did === "did:plc:twegdcgytckr5cxm57gyruxa") {
+        console.log(message.commit);
+      }
       switch (message.commit?.operation) {
         case "create": {
           const { $type: _, ...record } = message.commit.record;

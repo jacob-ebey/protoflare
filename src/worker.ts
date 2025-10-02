@@ -7,7 +7,11 @@ export { FirehoseListener } from "./storage/firehose";
 export { PDS, RepoStorage } from "./storage/pds";
 
 export default {
-  async fetch(request) {
+  async fetch(request, env, ctx) {
+    if (import.meta.env.DEV) {
+      // Ensure the FirehoseListener DO is started.
+      ctx.waitUntil(env.FIREHOSE_LISTENER.getByName("main").getLastEventTime());
+    }
     return provideCloudflareContext(request.cf, () =>
       handleRequest(request, routes),
     );

@@ -62,7 +62,7 @@ export class PDS extends DurableObject {
     } = this;
 
     const deleteRecord = Effect.tryPromise(async () =>
-      REPO.getByName(repo).deleteRecord({ collection, repo, rkey }),
+      REPO.getByName(repo).deleteRecord({ collection, rkey }),
     );
 
     return await Effect.runPromise(
@@ -168,11 +168,9 @@ export class RepoStorage extends DurableObject {
 
   async deleteRecord({
     collection,
-    repo,
     rkey,
   }: {
     collection: string;
-    repo: string;
     rkey: string;
   }) {
     const {
@@ -185,11 +183,10 @@ export class RepoStorage extends DurableObject {
           Effect.try(() =>
             sql.exec(
               /* SQL */ `
-            DELETE FROM records
-            WHERE collection = ? AND repo = ? AND rkey = ?;
-          `,
+                DELETE FROM records
+                WHERE \`collection\` = ? AND rkey = ?;
+              `,
               collection,
-              repo,
               rkey,
             ),
           ),
@@ -232,17 +229,8 @@ export class RepoStorage extends DurableObject {
       SELECT cid, rkey, record
       FROM records
       WHERE collection = ?
-      ${
-        cursor
-          ? `AND createdAt ${reverse ? ">" : "<"} (
-              SELECT createdAt
-              FROM records
-              WHERE rkey = ?
-            )
-          `
-          : ""
-      }
-      ORDER BY createdAt ${order}
+      ${cursor ? `AND rkey ${reverse ? ">" : "<"} ?` : ""}
+      ORDER BY rkey ${order}, cid ${order}
       LIMIT ?;
     `;
 
