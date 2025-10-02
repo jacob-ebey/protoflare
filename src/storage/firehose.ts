@@ -143,9 +143,6 @@ export class FirehoseListener extends BaseFirehoseListener<
     message: JetStreamMessage<(typeof wantedCollections)[number]>,
   ) {
     if (message.kind === "commit") {
-      if (message.did === "did:plc:twegdcgytckr5cxm57gyruxa") {
-        console.log(message.commit);
-      }
       switch (message.commit?.operation) {
         case "create": {
           const { $type: _, ...record } = message.commit.record;
