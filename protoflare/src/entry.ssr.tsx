@@ -23,6 +23,7 @@ export async function prerender(
 
   let status: number | undefined;
   let statusText: string | undefined;
+  // TODO: Allow throwing redirects from components
   let location: string | undefined;
 
   const ssrResponse = await routeRSCServerRequest({
