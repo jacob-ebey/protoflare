@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "types": ["@vitejs/plugin-rsc/types", "vite/client"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "declaration": true,
+    "declarationMap": true
+  }
+}

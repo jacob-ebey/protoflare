@@ -1,0 +1,60 @@
+{
+  "name": "protoflare",
+  "version": "0.0.0",
+  "description": "Utils for building React based ATProto apps on Cloudflare Workers.",
+  "type": "module",
+  "exports": {
+    "./client": "./dist/client.js",
+    "./entry.browser": "./dist/entry.browser.js",
+    "./entry.ssr": "./dist/entry.ssr.js",
+    "./server": "./dist/server.js",
+    "./vite": "./dist/vite.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "format": "prettier --write .",
+    "typegen": "wrangler types && pnpm format"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.17.1",
+  "peerDependencies": {
+    "@atproto/lexicon": "*",
+    "@atproto/oauth-client": "*",
+    "@atproto/oauth-types": "*",
+    "@atproto/syntax": "*",
+    "@atproto/xrpc": "*",
+    "@cloudflare/vite-plugin": "*",
+    "@vitejs/plugin-react": "*",
+    "@vitejs/plugin-rsc": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-router": "*",
+    "vite": "*",
+    "wrangler": "*"
+  },
+  "devDependencies": {
+    "@atproto/lexicon": "0.5.1",
+    "@atproto/oauth-client": "0.5.6",
+    "@atproto/oauth-types": "0.4.1",
+    "@atproto/syntax": "0.4.1",
+    "@atproto/xrpc": "0.7.5",
+    "@cloudflare/vite-plugin": "1.13.7",
+    "@types/node": "24.5.2",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "@vitejs/plugin-react": "5.0.4",
+    "@vitejs/plugin-rsc": "0.4.32",
+    "prettier": "3.6.2",
+    "react-router": "0.0.0-experimental-ec0227194",
+    "tsdown": "0.15.6",
+    "typescript": "5.9.3",
+    "vite": "7.1.8",
+    "wrangler": "4.41.0"
+  },
+  "dependencies": {
+    "dpop": "2.1.1"
+  }
+}
