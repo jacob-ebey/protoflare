@@ -187,7 +187,7 @@ export async function handleRequest({
       console.error("Error during SSR prerender", error);
       throw error;
     }
-  } catch (error) {
+  } catch {
     return new Response("Internal Server Error", { status: 500 });
   }
 }
@@ -217,24 +217,25 @@ type LexiconsModule = {
 type LexiconIds<Lexicon extends LexiconsModule> =
   Lexicon["ids"][keyof Lexicon["ids"]];
 
-export class FirehoseDurableObject<
+export class JetstreamConsumerDurableObject<
   Lexicon extends LexiconsModule,
+  WantedIds extends ReadonlyArray<LexiconIds<Lexicon>>,
 > extends DurableObject {
   #lastEventTime: number;
   #websocket: WebSocket | null = null;
-  #wantedCollections: Set<LexiconIds<Lexicon>>;
+  #wantedCollections: Set<WantedIds[number]>;
   #lexicons: Lexicons;
   #handleMessage: (
-    message: JetStreamMessage<LexiconIds<Lexicon>>,
+    message: JetStreamMessage<WantedIds[number]>,
   ) => void | Promise<void>;
 
   constructor(
     ctx: DurableObjectState,
     env: Cloudflare.Env,
     lexicons: Lexicons,
-    wantedCollections: LexiconIds<Lexicon>[],
+    wantedCollections: WantedIds,
     handleMessage: (
-      message: JetStreamMessage<LexiconIds<Lexicon>>,
+      message: JetStreamMessage<WantedIds[number]>,
     ) => void | Promise<void>,
   ) {
     super(ctx, env);
@@ -243,16 +244,16 @@ export class FirehoseDurableObject<
     this.#wantedCollections = new Set(wantedCollections);
     this.#handleMessage = handleMessage;
 
-    this.#lastEventTime = 0;
+    this.#lastEventTime = 1;
     ctx.blockConcurrencyWhile(async () => {
-      this.#lastEventTime = (await ctx.storage.get("lastEventTime")) ?? 0;
+      this.#lastEventTime = (await ctx.storage.get("lastEventTime")) ?? 1;
+
+      const onLoopError = (x: any) => {
+        console.error("Loop failed with error: ", x);
+      };
+
+      await this.#startLoop().catch(onLoopError);
     });
-
-    const onLoopError = (x: any) => {
-      console.error("Loop failed with error: ", x);
-    };
-
-    this.#startLoop().catch(onLoopError);
   }
 
   getLastEventTime(): number {
@@ -266,34 +267,32 @@ export class FirehoseDurableObject<
   async #startLoop() {
     this.#resetAlarm();
 
-    await this.ctx.blockConcurrencyWhile(async () => {
-      return new Promise<void>((resolve, reject) => {
-        let url = new URL("wss://jetstream1.us-west.bsky.network/subscribe");
-        url.searchParams.set("cursor", String(this.#lastEventTime));
-        for (const collection of this.#wantedCollections) {
-          url.searchParams.append("wantedCollections", collection);
-        }
+    await new Promise<void>((resolve, reject) => {
+      let url = new URL("wss://jetstream1.us-west.bsky.network/subscribe");
+      url.searchParams.set("cursor", String(this.#lastEventTime));
+      for (const collection of this.#wantedCollections) {
+        url.searchParams.append("wantedCollections", collection);
+      }
 
-        console.info("Connecting to ", url.href);
-        this.#websocket = new WebSocket(url);
-        this.#websocket.addEventListener("open", () => {
-          console.info("Connected to Jetstream.");
-          resolve();
-        });
-        this.#websocket.addEventListener("error", (err) => {
-          reject(err);
-          console.error("Got error from WebSocket: ", err);
-          this.#resetAlarm();
-        });
-        this.#websocket.addEventListener("close", (event) => {
-          this.ctx.abort(`Reset due to disconnect: ${event.reason}`);
-        });
-        this.#websocket.addEventListener("message", (event) => {
-          const message: JetStreamMessage<LexiconIds<Lexicon>> = JSON.parse(
+      console.info("Connecting to ", url.href);
+      this.#websocket = new WebSocket(url);
+      this.#websocket.addEventListener("open", () => {
+        console.info("Connected to Jetstream.");
+        resolve();
+      });
+      this.#websocket.addEventListener("error", (err) => {
+        reject(err);
+        console.error("Got error from WebSocket: ", err);
+        this.#resetAlarm();
+      });
+      this.#websocket.addEventListener("close", (event) => {
+        this.ctx.abort(`Reset due to disconnect: ${event.reason}`);
+      });
+      this.#websocket.addEventListener("message", async (event) => {
+        try {
+          const message: JetStreamMessage<WantedIds[number]> = JSON.parse(
             event.data as string,
           );
-
-          this.#lastEventTime = message.time_us;
 
           if (message.kind === "commit" && message.commit) {
             const uri = `lex:${message.commit.collection}`;
@@ -305,18 +304,26 @@ export class FirehoseDurableObject<
               : { success: false };
 
             if (valid.success) {
-              (async () => this.#handleMessage(message))()
-                .then(() => {
-                  if (message.time_us > this.#lastEventTime) {
-                    this.ctx.waitUntil(
-                      this.ctx.storage.put("lastEventTime", message.time_us),
-                    );
-                  }
-                })
-                .catch(console.error);
+              this.ctx.waitUntil(
+                (async () => this.#handleMessage(message))()
+                  .then(async () => {
+                    await this.ctx.blockConcurrencyWhile(async () => {
+                      if (message.time_us >= this.#lastEventTime) {
+                        this.#lastEventTime = message.time_us;
+                        await this.ctx.storage.put(
+                          "lastEventTime",
+                          message.time_us,
+                        );
+                      }
+                    });
+                  })
+                  .catch(console.error),
+              );
             }
           }
-        });
+        } catch (error) {
+          console.error("Failed to handle message", error);
+        }
       });
     });
   }

@@ -6,6 +6,7 @@
   "packageManager": "pnpm@10.17.1",
   "scripts": {
     "build": "vite build",
+    "db:migrate": "wrangler d1 migrations apply DB",
     "dev": "vite dev",
     "deploy": "npm run build && wrangler deploy",
     "format": "prettier --write .",
@@ -15,6 +16,7 @@
     "typegen": "wrangler types && pnpm format"
   },
   "dependencies": {
+    "@atproto/common-web": "0.4.3",
     "@atproto/lexicon": "0.5.1",
     "@atproto/oauth-client": "0.5.6",
     "@atproto/oauth-types": "0.4.1",

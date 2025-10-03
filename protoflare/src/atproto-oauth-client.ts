@@ -126,6 +126,14 @@ export class AtprotoOAuthClient {
     });
   }
 
+  async logout(did: string) {
+    await Promise.allSettled([
+      this.#namespace.delete(`user-${did}`),
+      this.#namespace.delete(`access-token-${did}`),
+      this.#namespace.delete(`state-${did}`),
+    ]);
+  }
+
   async restore(
     did: string,
     { signal }: { signal?: AbortSignal } = {},

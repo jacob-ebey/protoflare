@@ -9,9 +9,11 @@ export async function Layout({ children }: { children: React.ReactNode }) {
   const { cf } = getRequest();
   const session = getSession();
   const user = session?.get("user");
-  const firehose = env.FIREHOSE_LISTENER.getByName("main");
+  const jetstream = env.JETSTREAM_CONSUMER.getByName("main");
 
-  const lastSyncedAt = await firehose
+  // Even if you don't use this value in the UI, calling getLastEventTime()
+  // ensures that the jetstream consumer DO is started.
+  const lastSyncedAt = await jetstream
     .getLastEventTime()
     .then((ts) => new Date(ts / 1000).toISOString());
 

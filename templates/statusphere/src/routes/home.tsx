@@ -9,7 +9,5 @@ export default async function Home() {
 
   const status = user ? await getStatusByDid(user.did) : null;
 
-  return (
-    <main>{!user ? <LoginForm /> : <StatusForm status={status?.value} />}</main>
-  );
+  return <main>{!user ? <LoginForm /> : <StatusForm status={status} />}</main>;
 }

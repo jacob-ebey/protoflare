@@ -48,7 +48,7 @@ export function LoginForm() {
 export function StatusForm({
   status,
 }: {
-  status?: XyzStatusphereStatus.Record;
+  status?: { status: string; createdAt: string } | null;
 }) {
   const [state, action, pending] = useActionState(setStatusAction, undefined);
 

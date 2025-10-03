@@ -2,10 +2,11 @@
 
 import { env, waitUntil } from "cloudflare:workers";
 
+import { TID } from "@atproto/common-web";
 import { isValidHandle } from "@atproto/syntax";
 import { getAtprotoClient, getSession } from "protoflare/server";
 
-import { XyzStatusphereStatus } from "~/lexicons";
+import * as Status from "~/lexicons/types/xyz/statusphere/status";
 
 export async function loginAction(
   _: unknown,
@@ -22,9 +23,6 @@ export async function loginAction(
   const client = getAtprotoClient();
   let redirectURL: URL;
   try {
-    // Ensure the FirehoseListener DO is started.
-    waitUntil(env.FIREHOSE_LISTENER.getByName("main").getLastEventTime());
-
     redirectURL = await client.authorize(handle);
   } catch (reason) {
     console.error(reason);
@@ -51,27 +49,48 @@ export async function setStatusAction(
     return { error: "Invalid status" };
   }
 
-  const record = {
-    createdAt: new Date().toISOString(),
-    status,
-  };
-  const isValid = XyzStatusphereStatus.validateRecord({
+  const createdAt = new Date().toISOString();
+
+  const valid = Status.validateRecord({
     $type: "xyz.statusphere.status",
-    ...record,
+    createdAt,
+    status,
   });
 
-  if (!isValid.success) {
+  if (!valid.success) {
     return { error: "Invalid status" };
   }
 
-  const info = await client.xrpc.xyz.statusphere.status.create(
-    { repo: user.did },
-    record,
-  );
+  const rkey = TID.nextStr();
+  const uri = await client.xrpc.xyz.statusphere.status
+    .create({ repo: user.did, rkey, validate: false }, valid.value)
+    .then((res) => res.uri)
+    .catch((error) => {
+      console.error("Failed to broadcast status", error);
+      return false;
+    });
 
-  const create = await env.PDS.getByName(user.did).createRecord(info, record);
+  if (!uri) {
+    return { error: "Failed to broadcast status" };
+  }
 
-  if (!create.success) {
+  const res = await env.DB.prepare(
+    /* SQL */ `
+    INSERT INTO status (
+      uri, authorDid, status, createdAt, indexedAt
+    ) VALUES (?, ?, ?, ?, ?);
+  `,
+  )
+    .bind(
+      uri,
+      user.did,
+      valid.value.status,
+      valid.value.createdAt,
+      valid.value.createdAt,
+    )
+    .run();
+
+  if (!res.meta.rows_written) {
     return { error: "Failed to store status" };
   }
 }

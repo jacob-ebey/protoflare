@@ -5,16 +5,23 @@ import {
   type Session,
 } from "react-router";
 
-type SessionData = {
-  user?: {
-    did: string;
-    handle: string;
-  };
-};
+declare global {
+  namespace ProtoflareServer {
+    export interface SessionData {
+      user?: {
+        did: string;
+        handle: string;
+      };
+    }
+  }
+}
 
 type SessionContext = {
-  session: Session<SessionData, SessionData>;
-  sessionStorage: SessionStorage<SessionData, SessionData>;
+  session: Session<ProtoflareServer.SessionData, ProtoflareServer.SessionData>;
+  sessionStorage: SessionStorage<
+    ProtoflareServer.SessionData,
+    ProtoflareServer.SessionData
+  >;
 };
 
 const asyncSessionStorage = new AsyncLocalStorage<SessionContext>();
@@ -62,7 +69,10 @@ export const provideSessionContext = async (
   });
 };
 
-export function getSession(): Session<SessionData, SessionData> {
+export function getSession(): Session<
+  ProtoflareServer.SessionData,
+  ProtoflareServer.SessionData
+> {
   const ctx = asyncSessionStorage.getStore();
   if (!ctx) {
     throw new Error("No session context");

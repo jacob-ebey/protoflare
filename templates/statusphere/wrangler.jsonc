@@ -13,16 +13,8 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "FIREHOSE_LISTENER",
-        "class_name": "FirehoseListener",
-      },
-      {
-        "name": "PDS",
-        "class_name": "PDS",
-      },
-      {
-        "name": "REPO",
-        "class_name": "RepoStorage",
+        "name": "JETSTREAM_CONSUMER",
+        "class_name": "JetstreamConsumer",
       },
     ],
   },
@@ -35,6 +27,23 @@
     {
       "tag": "v2",
       "new_classes": ["FirehoseListener"],
+    },
+    {
+      "tag": "v3",
+      "deleted_classes": ["PDS", "RepoStorage"],
+    },
+    {
+      "tag": "v4",
+      "deleted_classes": ["FirehoseListener"],
+      "new_classes": ["JetstreamConsumer"],
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "DB",
+      "database_id": "ecbca689-ba7b-4b7d-89bc-5d62be49bfea",
+      "migrations_dir": "./migrations",
     },
   ],
 }

@@ -24,7 +24,7 @@ export default async function Status({
         <h1>
           {didDoc.alsoKnownAs?.[0]?.replace(/^at:\/\//, "@") || didDoc.id}
           {" - "}
-          {status?.value.status || "no status"}
+          {status?.status || "no status"}
         </h1>
       </article>
     </main>

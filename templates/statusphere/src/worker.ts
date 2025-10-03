@@ -6,23 +6,21 @@ import {
   oauthClientMeatadataPathname,
   routes,
 } from "~/routes";
-export { FirehoseListener } from "~/storage/firehose";
-export { PDS, RepoStorage } from "~/storage/pds";
+
+export { JetstreamConsumer } from "~/storage/jetstream";
 
 declare global {
   namespace ProtoflareServer {
+    // Provide your lexicon so that getAtprotoClient().xrpc is typed correctly
     export interface XrpcClient extends AtpBaseClient {}
+
+    // Add additional typesafe keys to getSession() methods
+    export interface SessionData {}
   }
 }
 
 export default {
-  async fetch(request, env, ctx) {
-    if (import.meta.env.DEV) {
-      // Ensure the FirehoseListener DO is started in dev mode. In prod, it starts after the first
-      // login to reduce unnecessary requests to it, and restarting is handled via alarms.
-      ctx.waitUntil(env.FIREHOSE_LISTENER.getByName("main").getLastEventTime());
-    }
-
+  async fetch(request, env) {
     if (!env.SESSION_SECRET) {
       console.error("SESSION_SECRET is not set");
       throw new Error("SESSION_SECRET is not set");

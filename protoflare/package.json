@@ -56,6 +56,7 @@
     "wrangler": "4.41.0"
   },
   "dependencies": {
+    "@oneidentity/zstd-js": "1.0.3",
     "dpop": "2.1.1"
   }
 }

@@ -14,6 +14,9 @@ importers:
 
   protoflare:
     dependencies:
+      '@oneidentity/zstd-js':
+        specifier: 1.0.3
+        version: 1.0.3
       dpop:
         specifier: 2.1.1
         version: 2.1.1
@@ -78,6 +81,9 @@ importers:
 
   templates/statusphere:
     dependencies:
+      '@atproto/common-web':
+        specifier: 0.4.3
+        version: 0.4.3
       '@atproto/lexicon':
         specifier: 0.5.1
         version: 0.5.1
@@ -853,6 +859,9 @@ packages:
 
   '@napi-rs/wasm-runtime@1.0.5':
     resolution: {integrity: sha512-TBr9Cf9onSAS2LQ2+QHx6XcC6h9+RIzJgbqG3++9TUZSH204AwEy5jg3BTQ0VATsyoGj4ee49tN/y6rvaOOtcg==}
+
+  '@oneidentity/zstd-js@1.0.3':
+    resolution: {integrity: sha512-Jm6sawqxLzBrjC4sg2BeXToa33yPzUmq20CKsehKY2++D/gHb/oSwVjNgT+RH4vys+r8FynrgcNzGwhZWMLzfQ==}
 
   '@oxc-project/types@0.93.0':
     resolution: {integrity: sha512-yNtwmWZIBtJsMr5TEfoZFDxIWV6OdScOpza/f5YxbqUMJk+j6QX3Cf3jgZShGEFYWQJ5j9mJ6jM0tZHu2J9Yrg==}
@@ -1687,6 +1696,9 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/emscripten@1.41.2':
+    resolution: {integrity: sha512-0EVXosRnffZuF+rsMM1ZVbfpwpvL2/hWycYQ/0GaH/VaoSJvcSmMl6fiPel9TZXHL3EhANxzqKOVFC6NFXyn8A==}
 
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
@@ -2956,6 +2968,10 @@ snapshots:
       '@tybys/wasm-util': 0.10.1
     optional: true
 
+  '@oneidentity/zstd-js@1.0.3':
+    dependencies:
+      '@types/emscripten': 1.41.2
+
   '@oxc-project/types@0.93.0': {}
 
   '@poppinss/colors@4.1.5':
@@ -4173,6 +4189,8 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.28.4
+
+  '@types/emscripten@1.41.2': {}
 
   '@types/estree@1.0.8': {}
 

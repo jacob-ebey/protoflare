@@ -1,9 +1,18 @@
 "use server";
 
+import {
+  destroySession,
+  getAtprotoClient,
+  getSession,
+} from "protoflare/server";
 import { href, redirectDocument } from "react-router";
-import { destroySession } from "protoflare/server";
 
 export async function logoutAction() {
-  await destroySession();
+  const client = getAtprotoClient();
+  const session = await getSession();
+  const user = session.get("user");
+
+  await Promise.allSettled([user && client.logout(user.did), destroySession()]);
+
   redirectDocument(href("/"));
 }
