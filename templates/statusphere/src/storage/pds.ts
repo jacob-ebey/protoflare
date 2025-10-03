@@ -1,8 +1,6 @@
 import { AtUri } from "@atproto/syntax";
 import { DurableObject } from "cloudflare:workers";
 
-import { Effect, Either } from "effect";
-
 type RecordList = {
   cursor?: string;
   records: {
@@ -25,27 +23,14 @@ export class PDS extends DurableObject {
       env: { REPO },
     } = this;
 
-    const { host } = AtUri.make(uri);
-
-    const createRecord = Effect.tryPromise(async () =>
-      REPO.getByName(host).createRecord({ cid, uri }, record),
-    );
-
-    return await Effect.runPromise(
-      Effect.gen(function* () {
-        const createResult = yield* Effect.either(createRecord);
-        if (Either.isLeft(createResult)) {
-          yield* Effect.logError(
-            "Failed to call REPO.createRecord",
-            createResult.left,
-          );
-
-          return { success: false };
-        }
-
-        return { success: true };
-      }),
-    );
+    try {
+      const { host } = AtUri.make(uri);
+      using res = await REPO.getByName(host).createRecord({ cid, uri }, record);
+      return { success: res.success };
+    } catch (error) {
+      console.error("Failed to call REPO.createRecord", error);
+      return { success: false };
+    }
   }
 
   async deleteRecord({
@@ -61,23 +46,13 @@ export class PDS extends DurableObject {
       env: { REPO },
     } = this;
 
-    const deleteRecord = Effect.tryPromise(async () =>
-      REPO.getByName(repo).deleteRecord({ collection, rkey }),
-    );
-
-    return await Effect.runPromise(
-      Effect.gen(function* () {
-        const deleteResult = yield* Effect.either(deleteRecord);
-        if (Either.isLeft(deleteResult)) {
-          yield* Effect.logError(
-            "Failed to call REPO.deleteRecord",
-            deleteResult.left,
-          );
-          return { success: false };
-        }
-        return { success: true };
-      }),
-    );
+    try {
+      using res = await REPO.getByName(repo).deleteRecord({ collection, rkey });
+      return { success: res.success };
+    } catch (error) {
+      console.error("Failed to call REPO.deleteRecord", error);
+      return { success: false };
+    }
   }
 
   async listRecords({
@@ -136,7 +111,7 @@ export class RepoStorage extends DurableObject {
       storage: { sql },
     } = this.ctx;
 
-    const insertRecord = Effect.try(() => {
+    try {
       const { collection, rkey } = AtUri.make(uri);
 
       const inserted = sql.exec(
@@ -149,21 +124,16 @@ export class RepoStorage extends DurableObject {
         rkey,
         JSON.stringify(record),
       );
+
       if (!inserted.rowsWritten) {
         throw new Error("records row not written to database");
       }
-    });
 
-    return await Effect.runPromise(
-      Effect.gen(function* () {
-        const res = yield* Effect.either(insertRecord);
-        if (Either.isLeft(res)) {
-          yield* Effect.logError("Failed to insert record", res.left);
-          return { success: false };
-        }
-        return { success: true };
-      }),
-    );
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to insert record", error);
+      return { success: false };
+    }
   }
 
   async deleteRecord({
@@ -172,32 +142,25 @@ export class RepoStorage extends DurableObject {
   }: {
     collection: string;
     rkey: string;
-  }) {
+  }): Promise<{ success: boolean }> {
     const {
       storage: { sql },
     } = this.ctx;
 
-    return await Effect.runPromise(
-      Effect.gen(function* () {
-        const res = yield* Effect.either(
-          Effect.try(() =>
-            sql.exec(
-              /* SQL */ `
-                DELETE FROM records
-                WHERE \`collection\` = ? AND rkey = ?;
-              `,
-              collection,
-              rkey,
-            ),
-          ),
-        );
-        if (Either.isLeft(res)) {
-          yield* Effect.logError("Failed to delete record", res.left);
-          return { success: false };
-        }
-        return { success: true };
-      }),
-    );
+    try {
+      sql.exec(
+        /* SQL */ `
+          DELETE FROM records
+          WHERE \`collection\` = ? AND rkey = ?;
+        `,
+        collection,
+        rkey,
+      );
+      return { success: true };
+    } catch (error) {
+      console.error("Failed to delete record", error);
+      return { success: false };
+    }
   }
 
   async listRecords({

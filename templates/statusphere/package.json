@@ -20,7 +20,6 @@
     "@atproto/oauth-types": "0.4.1",
     "@atproto/syntax": "0.4.1",
     "@atproto/xrpc": "0.7.5",
-    "effect": "3.17.14",
     "multiformats": "13.4.1",
     "react": "19.2.0",
     "react-aria-components": "1.12.2",

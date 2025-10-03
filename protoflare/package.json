@@ -14,6 +14,7 @@
   "scripts": {
     "build": "tsdown",
     "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
     "typegen": "wrangler types && pnpm format"
   },
   "keywords": [],
