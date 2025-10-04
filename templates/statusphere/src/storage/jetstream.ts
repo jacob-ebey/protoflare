@@ -12,7 +12,6 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
 > {
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env, {
-      // initialEventTime: 1748739661000000,
       lexicons: lexicons.lexicons,
       wantedCollections,
       handleMessage: async (message) => {

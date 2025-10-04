@@ -15,7 +15,8 @@
     "build": "tsdown",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "typegen": "wrangler types && pnpm format"
+    "typegen": "wrangler types && pnpm format",
+    "generate:dictionary": "node ./scripts/generate-dictionary.ts"
   },
   "keywords": [],
   "author": "",
@@ -56,7 +57,6 @@
     "wrangler": "4.41.0"
   },
   "dependencies": {
-    "@oneidentity/zstd-js": "1.0.3",
     "dpop": "2.1.1"
   }
 }

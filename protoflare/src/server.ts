@@ -234,14 +234,14 @@ export class JetstreamConsumerDurableObject<
     env: Cloudflare.Env,
     {
       handleMessage,
-      initialEventTime,
+      backfillStart,
       lexicons,
       wantedCollections,
     }: {
       handleMessage: (
         message: JetStreamMessage<WantedIds[number]>,
       ) => void | Promise<void>;
-      initialEventTime?: number;
+      backfillStart?: number;
       lexicons: Lexicons;
       wantedCollections: WantedIds;
     },
@@ -253,19 +253,21 @@ export class JetstreamConsumerDurableObject<
     this.#handleMessage = handleMessage;
 
     this.#lastEventTime = 0;
-    ctx.blockConcurrencyWhile(async () => {
-      this.#lastEventTime =
-        (await ctx.storage.get<number>("lastEventTime", {
-          allowConcurrency: true,
-          noCache: true,
-        })) ??
-        initialEventTime ??
-        0;
-
-      this.#startLoop().catch((reason) =>
-        console.error("Failed to start loop: ", reason),
+    ctx
+      .blockConcurrencyWhile(async () => {
+        this.#lastEventTime =
+          (await ctx.storage.get<number>("lastEventTime", {
+            allowConcurrency: true,
+            noCache: true,
+          })) ??
+          backfillStart ??
+          0;
+      })
+      .then(() =>
+        this.#startLoop().catch((reason) =>
+          console.error("Failed to start loop: ", reason),
+        ),
       );
-    });
   }
 
   getLastEventTime(): number {
@@ -331,6 +333,7 @@ export class JetstreamConsumerDurableObject<
     });
     this.#websocket.addEventListener("message", (event) => {
       try {
+        // TODO: decompress with zstd compression dictionary
         const message: JetStreamMessage<WantedIds[number]> = JSON.parse(
           event.data as string,
         );

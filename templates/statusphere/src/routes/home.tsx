@@ -10,4 +10,5 @@ export default async function Home() {
   const status = user ? await getStatusByDid(user.did) : null;
 
   return <main>{!user ? <LoginForm /> : <StatusForm status={status} />}</main>;
+  // TODO: Add list of most recent statuses from the statusphere
 }

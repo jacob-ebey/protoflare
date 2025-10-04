@@ -56,6 +56,7 @@ export function protoflare({
                 },
                 optimizeDeps: {
                   include: [
+                    "protoflare/server",
                     "react-router/internal/react-server-client",
                     "react-router > cookie",
                     "react-router > set-cookie-parser",
