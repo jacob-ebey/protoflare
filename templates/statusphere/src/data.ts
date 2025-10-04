@@ -31,3 +31,22 @@ export const getStatusByDid = cache(async (did: string) => {
       indexedAt: string;
     }>();
 });
+
+export const getLatesetStatuses = cache(async () => {
+  const result = await env.DB.prepare(
+    /* SQL */ `
+      SELECT uri, status, authorDid, createdAt, indexedAt
+      FROM status
+      ORDER BY createdAt DESC
+      LIMIT 20;
+    `,
+  ).all<{
+    uri: string;
+    status: string;
+    authorDid: string;
+    createdAt: string;
+    indexedAt: string;
+  }>();
+
+  return result.results;
+});

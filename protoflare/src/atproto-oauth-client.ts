@@ -538,6 +538,8 @@ export async function resolveDidFromHandle(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
 ) {
+  // TODO: Support DNS TXT _atproto records
+
   const url = new URL("/.well-known/atproto-did", `https://${handle}`);
   const { ok, didPromise } = await fetch(url, {
     cf: {
