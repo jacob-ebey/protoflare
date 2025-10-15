@@ -3,6 +3,7 @@ import { getSession } from "protoflare/server";
 import { getDidDocument, getLatesetStatuses, getStatusByDid } from "~/data";
 
 import { LoginForm, StatusForm } from "./home.client";
+import { cacheLife } from "vite-plugin-react-use-cache/runtime";
 
 export default async function Home() {
   const session = getSession();
@@ -11,15 +12,26 @@ export default async function Home() {
   const status = user ? await getStatusByDid(user.did) : null;
 
   return (
-    <main>
-      {!user ? <LoginForm /> : <StatusForm status={status} />}
+    <>
+      <title>Home | Statusphere</title>
+      <meta
+        name="description"
+        content="A simple social app using AT Protocol"
+      />
 
-      <LatestStatuses />
-    </main>
+      <main>
+        {!user ? <LoginForm /> : <StatusForm status={status} />}
+
+        <LatestStatuses />
+      </main>
+    </>
   );
 }
 
 async function LatestStatuses() {
+  "use cache";
+  cacheLife("seconds");
+
   const latestStatuses = await getLatesetStatuses();
 
   return (
