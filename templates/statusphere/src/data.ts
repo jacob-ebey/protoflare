@@ -8,7 +8,10 @@ const getDidFromHandle = cache<typeof resolveDidFromHandle>((...args) => {
   return resolveDidFromHandle(...args);
 });
 
-export const getDidDocument = cache(resolveDidDocument);
+export const getDidDocument = cache<typeof resolveDidDocument>((...args) => {
+  "use cache";
+  return resolveDidDocument(...args);
+});
 
 export const getDidFromDidOrHandle = cache(async (didOrHandle: string) => {
   if (didOrHandle.startsWith("did:")) {
