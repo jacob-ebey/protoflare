@@ -304,6 +304,8 @@ export class JetstreamConsumerDurableObject<
   }
 
   async #startLoop() {
+    await this.#resetAlarm();
+
     if (
       this.#websocket &&
       this.#websocket.readyState !== WebSocket.CLOSING &&
@@ -325,10 +327,12 @@ export class JetstreamConsumerDurableObject<
     });
     this.#websocket.addEventListener("error", (event) => {
       console.error("Got error from WebSocket: ", event);
+      this.#websocket = null;
       this.#startLoop();
     });
     this.#websocket.addEventListener("close", (event) => {
       console.warn("WebSocket closed: ", event.reason);
+      this.#websocket = null;
       this.#startLoop();
     });
     this.#websocket.addEventListener("message", (event) => {
@@ -360,8 +364,6 @@ export class JetstreamConsumerDurableObject<
         console.error("Failed to handle message", error);
       }
     });
-
-    this.#resetAlarm();
   }
 
   async #resetAlarm() {
