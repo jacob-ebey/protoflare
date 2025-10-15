@@ -1,5 +1,4 @@
 import { getSession } from "protoflare/server";
-import { Suspense } from "react";
 
 import { getDidDocument, getLatesetStatuses, getStatusByDid } from "~/data";
 

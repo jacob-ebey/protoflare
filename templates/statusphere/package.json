@@ -26,7 +26,8 @@
     "react": "19.2.0",
     "react-aria-components": "1.12.2",
     "react-dom": "19.2.0",
-    "react-router": "0.0.0-experimental-ec0227194"
+    "react-router": "0.0.0-experimental-ec0227194",
+    "unstorage": "1.17.1"
   },
   "devDependencies": {
     "@atproto/lex-cli": "0.9.5",
@@ -43,6 +44,7 @@
     "typescript": "5.9.3",
     "vite": "7.1.8",
     "vite-plugin-devtools-json": "1.0.0",
+    "vite-plugin-react-use-cache": "0.0.3",
     "vite-tsconfig-paths": "5.1.4",
     "wrangler": "4.41.0"
   }

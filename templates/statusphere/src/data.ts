@@ -3,6 +3,11 @@ import { env } from "cloudflare:workers";
 import { cache } from "react";
 import { resolveDidDocument, resolveDidFromHandle } from "protoflare/server";
 
+const getDidFromHandle = cache<typeof resolveDidFromHandle>((...args) => {
+  "use cache";
+  return resolveDidFromHandle(...args);
+});
+
 export const getDidDocument = cache(resolveDidDocument);
 
 export const getDidFromDidOrHandle = cache(async (didOrHandle: string) => {
@@ -10,7 +15,7 @@ export const getDidFromDidOrHandle = cache(async (didOrHandle: string) => {
     return didOrHandle;
   }
 
-  return resolveDidFromHandle(didOrHandle).catch(() => undefined);
+  return getDidFromHandle(didOrHandle);
 });
 
 export const getStatusByDid = cache(async (did: string) => {

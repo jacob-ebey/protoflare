@@ -1,6 +1,6 @@
 "use server";
 
-import { env, waitUntil } from "cloudflare:workers";
+import { env } from "cloudflare:workers";
 
 import { TID } from "@atproto/common-web";
 import { isValidHandle } from "@atproto/syntax";

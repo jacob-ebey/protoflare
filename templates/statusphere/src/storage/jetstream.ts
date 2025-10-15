@@ -22,7 +22,7 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
                 case "create": {
                   const record = message.commit.record as Status.Record;
 
-                  const res = await env.DB.prepare(
+                  await env.DB.prepare(
                     /* SQL */ `
                     INSERT INTO status (
                       uri, authorDid, status, createdAt, indexedAt

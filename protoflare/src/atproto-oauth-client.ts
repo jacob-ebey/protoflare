@@ -1,4 +1,5 @@
 import { waitUntil } from "cloudflare:workers";
+import * as dns from "node:dns/promises";
 
 import {
   didDocumentValidator,
@@ -534,12 +535,28 @@ function getRedirectURI(request: Request, callbackPathname: string) {
   ).href;
 }
 
-export async function resolveDidFromHandle(
+async function lookupByDNSRecord(handle: string): Promise<string | null> {
+  try {
+    const txtRecords = await dns.resolveTxt(`_atproto.${handle}`);
+
+    for (const record of txtRecords) {
+      const txtValue = Array.isArray(record) ? record.join("") : record;
+      const match = txtValue.match(/^did=(.+)$/);
+      if (match) {
+        return match[1];
+      }
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function lookupByWellKnownDocument(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
-) {
-  // TODO: Support DNS TXT _atproto records
-
+): Promise<string | null> {
   const url = new URL("/.well-known/atproto-did", `https://${handle}`);
   const { ok, didPromise } = await fetch(url, {
     cf: {
@@ -552,17 +569,47 @@ export async function resolveDidFromHandle(
       didPromise: res.text().catch(() => null),
     }))
     .catch(() => ({ ok: false, didPromise: Promise.resolve(null) }));
-  let did: string | null | undefined;
-  if (!ok || !(did = await didPromise)) {
-    const bskyURL = new URL(
-      "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
-    );
-    bskyURL.searchParams.set("handle", handle);
-    did = (await (await fetch(bskyURL)).json<{ did?: string }>())?.did;
+
+  if (!ok) return null;
+  return await didPromise;
+}
+
+async function lookupOnBluesky(
+  handle: string,
+  { signal }: { signal?: AbortSignal } = {},
+): Promise<string | null> {
+  const bskyURL = new URL(
+    "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
+  );
+  bskyURL.searchParams.set("handle", handle);
+
+  try {
+    const response = await fetch(bskyURL, { signal });
+    const data = await response.json<{ did?: string }>();
+    return data?.did ?? null;
+  } catch {
+    return null;
   }
+}
+
+export async function resolveDidFromHandle(
+  handle: string,
+  { signal }: { signal?: AbortSignal } = {},
+) {
+  let did = await lookupByDNSRecord(handle);
+
   if (!did) {
-    throw new Error(`Failed to resolve DID from ${url.href}`);
+    did = await lookupByWellKnownDocument(handle, { signal });
   }
+
+  if (!did) {
+    did = await lookupOnBluesky(handle, { signal });
+  }
+
+  if (!did) {
+    throw new Error(`Failed to resolve DID for handle: ${handle}`);
+  }
+
   ensureValidDid(did);
   return did;
 }
