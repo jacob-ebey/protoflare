@@ -3,6 +3,10 @@
   "version": "0.0.2",
   "description": "Utils for building React based ATProto apps on Cloudflare Workers.",
   "type": "module",
+  "repository": {
+    "url": "https://github.com/jacob-ebey/protoflare",
+    "directory": "protoflare"
+  },
   "files": [
     "dist"
   ],
