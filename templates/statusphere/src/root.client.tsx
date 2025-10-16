@@ -43,7 +43,7 @@ export function ClientLayout({
         <header>
           <nav>
             <h1>
-              <Link to={href("/")}>App Name</Link>
+              <Link to={href("/")}>Statusphere</Link>
             </h1>
             <ul>
               <li>
