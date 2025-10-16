@@ -59,7 +59,7 @@ async function LatestStatus({
   const didDoc = await getDidDocument(status.authorDid).catch(() => null);
 
   const displayName =
-    didDoc?.alsoKnownAs?.[0]?.replace("at://", "") || status.authorDid;
+    didDoc?.alsoKnownAs?.[0]?.replace(/^at:\/\//, "") || status.authorDid;
 
   return (
     <li key={status.uri}>

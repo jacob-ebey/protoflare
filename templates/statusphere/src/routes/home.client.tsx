@@ -10,7 +10,6 @@ import {
   InputField,
   Label,
 } from "~/components/ui/form";
-import type { XyzStatusphereStatus } from "~/lexicons";
 
 import { loginAction, setStatusAction } from "./home.actions";
 
@@ -32,7 +31,6 @@ export function LoginForm() {
         <InputField isRequired type="text" name="handle">
           <Label>Handle</Label>
           <Input autoCapitalize="off" placeholder="user.bsky.social" />
-
           <FieldError />
         </InputField>
         <div>
@@ -73,7 +71,6 @@ export function StatusForm({
       <InputField isRequired type="text" name="status">
         <Label>Status</Label>
         <Input autoCapitalize="off" maxLength={2} />
-
         <FieldError />
       </InputField>
       <div>

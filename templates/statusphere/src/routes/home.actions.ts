@@ -91,6 +91,6 @@ export async function setStatusAction(
     .run();
 
   if (!res.meta.rows_written) {
-    return { error: "Failed to store status" };
+    return { error: "Failed to save status" };
   }
 }
