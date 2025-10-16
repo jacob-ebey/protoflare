@@ -420,7 +420,7 @@ function createCacheUnstorageDriver({
       const response = new Response(JSON.stringify(value), {
         headers: {
           "Content-Type": "application/json",
-          "Cache-Control": "max-age=15552000",
+          "Cache-Control": "public, max-age=15552000",
         },
       });
       await cache.put(
