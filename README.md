@@ -19,6 +19,12 @@ Install template:
 npx giget@latest gh:jacob-ebey/protoflare/templates/statusphere
 ```
 
+Migrate DB:
+
+```bash
+pnpm db:migrate
+```
+
 Run:
 
 ```bash
