@@ -29,7 +29,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - run: pnpm build
-        working-directory: ./protoflate
+        working-directory: protoflate
 
       - run: npm publish --provenance --access public
-        working-directory: ./protoflate
+        working-directory: protoflate
