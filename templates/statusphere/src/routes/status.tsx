@@ -17,16 +17,22 @@ export default async function Status({
   }
 
   const status = await getStatusByDid(didDoc.id);
+  const aka = didDoc.alsoKnownAs?.[0]?.replace(/^at:\/\//, "") || didDoc.id;
 
   return (
-    <main>
-      <article>
-        <h1>
-          {didDoc.alsoKnownAs?.[0]?.replace(/^at:\/\//, "@") || didDoc.id}
-          {" - "}
-          {status?.status || "no status"}
-        </h1>
-      </article>
-    </main>
+    <>
+      <title>{`${aka} | Statusphere`}</title>
+      <meta name="description" content={`Status page for ${aka}`} />
+
+      <main>
+        <article>
+          <h1>
+            {status?.status || "no status"}
+            {" - "}
+            {aka}
+          </h1>
+        </article>
+      </main>
+    </>
   );
 }
