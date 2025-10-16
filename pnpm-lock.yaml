@@ -41,7 +41,7 @@ importers:
         version: 0.7.5
       '@cloudflare/vite-plugin':
         specifier: 1.13.7
-        version: 1.13.7(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)
+        version: 1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -53,10 +53,10 @@ importers:
         version: 19.2.0(@types/react@19.2.0)
       '@vitejs/plugin-react':
         specifier: 5.0.4
-        version: 5.0.4(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 5.0.4(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       '@vitejs/plugin-rsc':
         specifier: 0.4.32
-        version: 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       prettier:
         specifier: 3.6.2
         version: 3.6.2
@@ -70,8 +70,8 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       vite:
-        specifier: 7.1.8
-        version: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+        specifier: 7.1.10
+        version: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
       wrangler:
         specifier: 4.41.0
         version: 4.41.0
@@ -120,7 +120,7 @@ importers:
         version: 0.9.5
       '@cloudflare/vite-plugin':
         specifier: 1.13.7
-        version: 1.13.7(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)
+        version: 1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -132,10 +132,10 @@ importers:
         version: 19.2.0(@types/react@19.2.0)
       '@vitejs/plugin-react':
         specifier: 5.0.4
-        version: 5.0.4(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 5.0.4(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       '@vitejs/plugin-rsc':
         specifier: 0.4.32
-        version: 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       modern-normalize:
         specifier: 3.0.1
         version: 3.0.1
@@ -152,17 +152,17 @@ importers:
         specifier: 5.9.3
         version: 5.9.3
       vite:
-        specifier: 7.1.8
-        version: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+        specifier: 7.1.10
+        version: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
       vite-plugin-devtools-json:
         specifier: 1.0.0
-        version: 1.0.0(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 1.0.0(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-plugin-react-use-cache:
         specifier: 0.0.3
-        version: 0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-tsconfig-paths:
         specifier: 5.1.4
-        version: 5.1.4(typescript@5.9.3)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+        version: 5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       wrangler:
         specifier: 4.41.0
         version: 4.41.0
@@ -2448,8 +2448,8 @@ packages:
       vite:
         optional: true
 
-  vite@7.1.8:
-    resolution: {integrity: sha512-oBXvfSHEOL8jF+R9Am7h59Up07kVVGH1NrFGFoEG6bPDZP3tGpQhvkBpy5x7U6+E6wZCu9OihsWgJqDbQIm8LQ==}
+  vite@7.1.10:
+    resolution: {integrity: sha512-CmuvUBzVJ/e3HGxhg6cYk88NGgTnBoOo7ogtfJJ0fefUWAxN/WDSUa50o+oVBxuIhO8FoEZW0j2eW7sfjs5EtA==}
     engines: {node: ^20.19.0 || >=22.12.0}
     hasBin: true
     peerDependencies:
@@ -2859,7 +2859,7 @@ snapshots:
     optionalDependencies:
       workerd: 1.20251001.0
 
-  '@cloudflare/vite-plugin@1.13.7(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)':
+  '@cloudflare/vite-plugin@1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))(workerd@1.20251001.0)(wrangler@4.41.0)':
     dependencies:
       '@cloudflare/unenv-preset': 2.7.4(unenv@2.0.0-rc.21)(workerd@1.20251001.0)
       '@remix-run/node-fetch-server': 0.8.1
@@ -2868,7 +2868,7 @@ snapshots:
       picocolors: 1.1.1
       tinyglobby: 0.2.15
       unenv: 2.0.0-rc.21
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
       wrangler: 4.41.0
       ws: 8.18.0
     transitivePeerDependencies:
@@ -4464,7 +4464,7 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
-  '@vitejs/plugin-react@5.0.4(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))':
+  '@vitejs/plugin-react@5.0.4(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))':
     dependencies:
       '@babel/core': 7.28.4
       '@babel/plugin-transform-react-jsx-self': 7.27.1(@babel/core@7.28.4)
@@ -4472,11 +4472,11 @@ snapshots:
       '@rolldown/pluginutils': 1.0.0-beta.38
       '@types/babel__core': 7.20.5
       react-refresh: 0.17.0
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))':
+  '@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))':
     dependencies:
       '@remix-run/node-fetch-server': 0.9.0
       es-module-lexer: 1.7.0
@@ -4486,8 +4486,8 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       turbo-stream: 3.1.0
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
-      vitefu: 1.1.1(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
+      vitefu: 1.1.1(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
 
   acorn-walk@8.3.2: {}
 
@@ -5193,39 +5193,39 @@ snapshots:
 
   uuid@11.1.0: {}
 
-  vite-plugin-devtools-json@1.0.0(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)):
+  vite-plugin-devtools-json@1.0.0(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
     dependencies:
       uuid: 11.1.0
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
 
-  vite-plugin-react-use-cache@0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)):
+  vite-plugin-react-use-cache@0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
     dependencies:
       '@babel/core': 7.28.4
       '@babel/helper-module-imports': 7.27.1
       '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.4)
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
       '@types/react': 19.1.13
-      '@vitejs/plugin-rsc': 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1))
+      '@vitejs/plugin-rsc': 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       react: 19.2.0
       server-only: 0.0.1
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
     optionalDependencies:
       unstorage: 1.17.1
     transitivePeerDependencies:
       - supports-color
 
-  vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)):
+  vite-tsconfig-paths@5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
     dependencies:
       debug: 4.4.3
       globrex: 0.1.2
       tsconfck: 3.1.6(typescript@5.9.3)
     optionalDependencies:
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1):
+  vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1):
     dependencies:
       esbuild: 0.25.10
       fdir: 6.5.0(picomatch@4.0.3)
@@ -5238,9 +5238,9 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.6.1
 
-  vitefu@1.1.1(vite@7.1.8(@types/node@24.5.2)(jiti@2.6.1)):
+  vitefu@1.1.1(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
     optionalDependencies:
-      vite: 7.1.8(@types/node@24.5.2)(jiti@2.6.1)
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
 
   workerd@1.20250924.0:
     optionalDependencies:

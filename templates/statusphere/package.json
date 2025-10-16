@@ -42,7 +42,7 @@
     "prettier": "3.6.2",
     "protoflare": "workspace:*",
     "typescript": "5.9.3",
-    "vite": "7.1.8",
+    "vite": "7.1.10",
     "vite-plugin-devtools-json": "1.0.0",
     "vite-plugin-react-use-cache": "0.0.3",
     "vite-tsconfig-paths": "5.1.4",
