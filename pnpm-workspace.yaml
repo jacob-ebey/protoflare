@@ -1,3 +1,5 @@
 packages:
   - "protoflare"
   - "templates/*"
+overrides:
+  protoflare: "workspace:*"
