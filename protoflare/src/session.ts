@@ -36,10 +36,15 @@ export const provideSessionContext = async (
 
   const sessionStorage = createCookieSessionStorage({
     cookie: {
-      path: "/",
+      // 1 year
+      maxAge: 60 * 60 * 24 * 365,
       httpOnly: true,
+      name: "app_session",
+      path: "/",
+      priority: "high",
       sameSite: "lax",
       secrets,
+      secure: request.url.startsWith("https://"),
     },
   });
 
