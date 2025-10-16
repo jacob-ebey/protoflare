@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Utils for building React based ATProto apps on Cloudflare Workers.",
   "type": "module",
+  "files": [
+    "dist"
+  ],
   "exports": {
     "./client": "./dist/client.js",
     "./entry.browser": "./dist/entry.browser.js",
@@ -58,8 +61,7 @@
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "*",
-    "@vitejs/plugin-react": "*",
-    "@vitejs/plugin-rsc": "*",
+    "@vitejs/plugin-react": "5.0.4",
     "dpop": "2.1.1",
     "unstorage": "1.17.1"
   }

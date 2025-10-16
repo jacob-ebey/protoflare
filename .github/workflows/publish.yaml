@@ -1,0 +1,35 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.17.1
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: "pnpm"
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org/
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm build
+        working-directory: ./protoflate
+
+      - run: npm publish --provenance --access public
+        working-directory: ./protoflate
