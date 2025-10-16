@@ -1,6 +1,6 @@
 {
   "name": "protoflare",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Utils for building React based ATProto apps on Cloudflare Workers.",
   "type": "module",
   "repository": {
@@ -8,7 +8,8 @@
     "directory": "protoflare"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "exports": {
     "./client": "./dist/client.js",
