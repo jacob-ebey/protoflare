@@ -9,10 +9,6 @@
       "binding": "OAUTH_STORAGE",
       "id": "aa5e9335a3744c648e2184a95d886ce7",
     },
-    {
-      "binding": "USE_CACHE",
-      "id": "dc98773becae466eb5ff3a538dd2321d",
-    },
   ],
   "durable_objects": {
     "bindings": [
