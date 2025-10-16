@@ -18,6 +18,9 @@ import {
   unstable_matchRSCServerRequest as matchRSCServerRequest,
   type unstable_RSCRouteConfig as RSCRouteConfig,
 } from "react-router";
+import { provideCache } from "vite-plugin-react-use-cache/runtime";
+import { createUnstorageCache } from "vite-plugin-react-use-cache/unstorage";
+import { createStorage } from "unstorage";
 
 import { provideAtProtoContext } from "./atproto";
 import { provideRequestContext } from "./request";
@@ -28,6 +31,12 @@ import {
   serializeRequestWithoutBody,
   serializeResponse,
 } from "./transport-tools";
+
+export {
+  cacheLife,
+  cacheTag,
+  revalidateTag,
+} from "vite-plugin-react-use-cache/runtime";
 
 export { getAtprotoClient } from "./atproto";
 export {
@@ -117,6 +126,7 @@ export function callServer({
                     ) {
                       return error.digest;
                     }
+                    console.error("Error during RSC render", error);
                   },
                 }),
                 {
@@ -167,15 +177,25 @@ export async function handleRequest({
   try {
     let serverResponse: Response;
     try {
-      serverResponse = await callServer({
-        AtpBaseClient,
-        authNamespace,
-        oauthCallbackPathname,
-        oauthClientMeatadataPathname,
-        request,
-        routes,
-        sessionSecrets,
-      });
+      serverResponse = await provideCache(
+        createUnstorageCache(
+          createStorage({
+            driver: createCacheUnstorageDriver({
+              cache: caches.open("use-cache"),
+            }),
+          }),
+        ),
+        () =>
+          callServer({
+            AtpBaseClient,
+            authNamespace,
+            oauthCallbackPathname,
+            oauthClientMeatadataPathname,
+            request,
+            routes,
+            sessionSecrets,
+          }),
+      );
     } catch (error) {
       console.error("Error during RSC handling", error);
       throw error;
@@ -379,7 +399,7 @@ export class JetstreamConsumerDurableObject<
   }
 }
 
-export function createCacheUnstorageDriver({
+function createCacheUnstorageDriver({
   cache: openCache,
 }: {
   cache: Promise<Cache>;

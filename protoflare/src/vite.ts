@@ -1,11 +1,11 @@
-import { mergeConfig, type PluginOption } from "vite";
-
 import {
   cloudflare,
   type PluginConfig as CloudflareConfig,
 } from "@cloudflare/vite-plugin";
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import rsc, { type RscPluginOptions } from "@vitejs/plugin-rsc";
+import { mergeConfig, type PluginOption } from "vite";
+import { useCachePlugin } from "vite-plugin-react-use-cache";
 
 export function protoflare({
   cloudflare: cloudflareConfig,
@@ -33,6 +33,7 @@ export function protoflare({
       serverHandler: false,
       loadModuleDevProxy: true,
     }),
+    useCachePlugin(),
     {
       name: "protoflare",
       config(userConfig) {

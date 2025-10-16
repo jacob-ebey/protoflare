@@ -2,7 +2,7 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cloudflare-atproto-test",
   "compatibility_date": "2025-04-03",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["enable_weak_ref", "nodejs_compat"],
   "main": "./src/worker.ts",
   "kv_namespaces": [
     {

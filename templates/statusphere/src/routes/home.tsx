@@ -1,9 +1,8 @@
-import { getSession } from "protoflare/server";
+import { cacheLife, getSession } from "protoflare/server";
 
 import { getDidDocument, getLatesetStatuses, getStatusByDid } from "~/data";
 
 import { LoginForm, StatusForm } from "./home.client";
-import { cacheLife } from "vite-plugin-react-use-cache/runtime";
 import { Suspense } from "react";
 
 export default async function Home() {
@@ -80,7 +79,7 @@ async function LatestStatus({
     createdAt: string;
   };
 }) {
-  const didDoc = await getDidDocument(status.authorDid).catch(() => null);
+  const didDoc = await getDidDocument(status.authorDid).catch(console.error);
 
   const displayName =
     didDoc?.alsoKnownAs?.[0]?.replace(/^at:\/\//, "") || status.authorDid;

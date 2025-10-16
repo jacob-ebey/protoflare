@@ -10,6 +10,10 @@ export default defineConfig({
     "src/server.ts",
     "src/vite.ts",
   ],
-  external: ["cloudflare:workers", ...Object.keys(pkg.peerDependencies)],
+  external: [
+    "cloudflare:workers",
+    ...Object.keys(pkg.dependencies),
+    ...Object.keys(pkg.peerDependencies),
+  ],
   dts: true,
 });

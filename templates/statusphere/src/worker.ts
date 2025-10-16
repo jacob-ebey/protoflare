@@ -1,7 +1,4 @@
-import { createCacheUnstorageDriver, handleRequest } from "protoflare/server";
-import { provideCache } from "vite-plugin-react-use-cache/runtime";
-import { createUnstorageCache } from "vite-plugin-react-use-cache/unstorage";
-import { createStorage } from "unstorage";
+import { handleRequest } from "protoflare/server";
 
 import { AtpBaseClient } from "~/lexicons";
 import {
@@ -29,24 +26,14 @@ export default {
       throw new Error("SESSION_SECRET is not set");
     }
 
-    return provideCache(
-      createUnstorageCache(
-        createStorage({
-          driver: createCacheUnstorageDriver({
-            cache: caches.open("use-cache"),
-          }),
-        }),
-      ),
-      () =>
-        handleRequest({
-          AtpBaseClient,
-          authNamespace: env.OAUTH_STORAGE,
-          oauthCallbackPathname,
-          oauthClientMeatadataPathname,
-          request,
-          routes,
-          sessionSecrets: [env.SESSION_SECRET],
-        }),
-    );
+    return handleRequest({
+      AtpBaseClient,
+      authNamespace: env.OAUTH_STORAGE,
+      oauthCallbackPathname,
+      oauthClientMeatadataPathname,
+      request,
+      routes,
+      sessionSecrets: [env.SESSION_SECRET],
+    });
   },
 } satisfies ExportedHandler<Env>;

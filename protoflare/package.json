@@ -28,13 +28,12 @@
     "@atproto/oauth-types": "*",
     "@atproto/syntax": "*",
     "@atproto/xrpc": "*",
-    "@cloudflare/vite-plugin": "*",
-    "@vitejs/plugin-react": "*",
     "@vitejs/plugin-rsc": "*",
     "react": "*",
     "react-dom": "*",
     "react-router": "*",
     "vite": "*",
+    "vite-plugin-react-use-cache": "*",
     "wrangler": "*"
   },
   "devDependencies": {
@@ -54,9 +53,14 @@
     "tsdown": "0.15.6",
     "typescript": "5.9.3",
     "vite": "7.1.10",
+    "vite-plugin-react-use-cache": "0.0.3",
     "wrangler": "4.41.0"
   },
   "dependencies": {
-    "dpop": "2.1.1"
+    "@cloudflare/vite-plugin": "*",
+    "@vitejs/plugin-react": "*",
+    "@vitejs/plugin-rsc": "*",
+    "dpop": "2.1.1",
+    "unstorage": "1.17.1"
   }
 }

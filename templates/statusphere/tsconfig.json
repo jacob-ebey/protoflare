@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["@vitejs/plugin-rsc/types", "vite/client"],
+    "types": ["vite/client"],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "target": "ESNext",
