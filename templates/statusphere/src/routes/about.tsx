@@ -8,7 +8,7 @@ export default function About() {
         <article>
           <h1>About This App</h1>
           <p>
-            This app demonstrates OAuth authentication with ATProto on
+            This app demonstrates ATProto OAuth and JetStream ingestion on
             Cloudflare Workers.
           </p>
           <p>Tech stack:</p>
