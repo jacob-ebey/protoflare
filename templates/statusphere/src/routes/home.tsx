@@ -4,6 +4,7 @@ import { getDidDocument, getLatesetStatuses, getStatusByDid } from "~/data";
 
 import { LoginForm, StatusForm } from "./home.client";
 import { cacheLife } from "vite-plugin-react-use-cache/runtime";
+import { Suspense } from "react";
 
 export default async function Home() {
   const session = getSession();
@@ -39,7 +40,27 @@ async function LatestStatuses() {
       <h2>Latest Statuses</h2>
       <ul>
         {latestStatuses.map((status) => (
-          <LatestStatus key={status.uri} status={status} />
+          <Suspense
+            key={status.uri}
+            fallback={
+              <li>
+                <span
+                  style={{
+                    display: "inline-block",
+                    width: `calc(200px + ${Math.floor(Math.random() * 100)}px)`,
+                    height: "1em",
+                    backgroundColor: "rgba(0,0,0,0.1)",
+                    borderRadius: "4px",
+                  }}
+                  aria-label="Loading..."
+                >
+                  &nbsp;
+                </span>
+              </li>
+            }
+          >
+            <LatestStatus status={status} />
+          </Suspense>
         ))}
       </ul>
     </section>
