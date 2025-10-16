@@ -378,3 +378,60 @@ export class JetstreamConsumerDurableObject<
     await this.ctx.storage.setAlarm(Date.now() + 5000);
   }
 }
+
+export function createCacheUnstorageDriver({
+  cache: openCache,
+}: {
+  cache: Promise<Cache>;
+}) {
+  return {
+    async getItem(key: string) {
+      const cache = await openCache;
+      const response = await cache.match(
+        new Request(new URL(key, "https://use-cache.com")),
+        {
+          ignoreMethod: true,
+        },
+      );
+      return response ? await response.json() : null;
+    },
+    async setItem(key: string, value: unknown) {
+      const cache = await openCache;
+      const response = new Response(JSON.stringify(value), {
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "max-age=15552000",
+        },
+      });
+      await cache.put(
+        new Request(new URL(key, "https://use-cache.com")),
+        response,
+      );
+    },
+    async hasItem(key: string) {
+      const cache = await openCache;
+      const response = await cache.match(
+        new Request(new URL(key, "https://use-cache.com")),
+        {
+          ignoreMethod: true,
+        },
+      );
+      return response !== undefined;
+    },
+    async getKeys() {
+      const cache = await openCache;
+      const keys = await cache.keys();
+      return keys.map((request) => {
+        const url = new URL(request.url);
+        return url.pathname + url.search + url.hash;
+      });
+    },
+    async removeItem(key: string) {
+      const cache = await openCache;
+      await cache.delete(new Request(new URL(key, "https://use-cache.com")));
+    },
+    async clear() {
+      await caches.delete("use-cache");
+    },
+  };
+}
