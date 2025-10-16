@@ -38,12 +38,11 @@ async function LatestStatuses() {
   return (
     <section>
       <h2>Latest Statuses</h2>
-      <ul>
-        {latestStatuses.map((status) => (
-          <Suspense
-            key={status.uri}
-            fallback={
-              <li>
+      <Suspense
+        fallback={
+          <ul>
+            {latestStatuses.map((status) => (
+              <li key={status.uri}>
                 <span
                   style={{
                     display: "inline-block",
@@ -57,12 +56,16 @@ async function LatestStatuses() {
                   &nbsp;
                 </span>
               </li>
-            }
-          >
-            <LatestStatus status={status} />
-          </Suspense>
-        ))}
-      </ul>
+            ))}
+          </ul>
+        }
+      >
+        <ul>
+          {latestStatuses.map((status) => (
+            <LatestStatus key={status.uri} status={status} />
+          ))}
+        </ul>
+      </Suspense>
     </section>
   );
 }
