@@ -42,6 +42,6 @@
     "vite-plugin-devtools-json": "1.0.0",
     "vite-plugin-react-use-cache": "0.0.4",
     "vite-tsconfig-paths": "5.1.4",
-    "wrangler": "4.41.0"
+    "wrangler": "4.43.0"
   }
 }
