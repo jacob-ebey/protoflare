@@ -1,6 +1,6 @@
 {
   "name": "protoflare",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Utils for building React based ATProto apps on Cloudflare Workers.",
   "type": "module",
   "repository": {
