@@ -158,8 +158,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-plugin-react-use-cache:
-        specifier: 0.0.3
-        version: 0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+        specifier: 0.0.4
+        version: 0.0.4(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-tsconfig-paths:
         specifier: 5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
@@ -240,8 +240,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-plugin-react-use-cache:
-        specifier: 0.0.3
-        version: 0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+        specifier: 0.0.4
+        version: 0.0.4(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
       vite-tsconfig-paths:
         specifier: 5.1.4
         version: 5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
@@ -2513,6 +2513,17 @@ packages:
 
   vite-plugin-react-use-cache@0.0.3:
     resolution: {integrity: sha512-UUDXghheyFrSTE3C8e5dfzAfzHMdbeTZELgqvRn1Kz8Z3hcH6iiP2DlhxwiKHxHqkB8py8TOnR4Owe0nfr+uyA==}
+    peerDependencies:
+      '@vitejs/plugin-rsc': '*'
+      react: '*'
+      unstorage: '*'
+      vite: '*'
+    peerDependenciesMeta:
+      unstorage:
+        optional: true
+
+  vite-plugin-react-use-cache@0.0.4:
+    resolution: {integrity: sha512-nYLBl3baTdv0hPOAE6jGmZSOxB2atXJSTIz14rjUqMyo4A8GD+WG/xrR/ugrHTnDk98ql1QBY/S+MD0dW1vn2A==}
     peerDependencies:
       '@vitejs/plugin-rsc': '*'
       react: '*'
@@ -5281,6 +5292,22 @@ snapshots:
       vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
 
   vite-plugin-react-use-cache@0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
+    dependencies:
+      '@babel/core': 7.28.4
+      '@babel/helper-module-imports': 7.27.1
+      '@babel/plugin-syntax-jsx': 7.27.1(@babel/core@7.28.4)
+      '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4)
+      '@types/react': 19.1.13
+      '@vitejs/plugin-rsc': 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+      react: 19.2.0
+      server-only: 0.0.1
+      vite: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
+    optionalDependencies:
+      unstorage: 1.17.1
+    transitivePeerDependencies:
+      - supports-color
+
+  vite-plugin-react-use-cache@0.0.4(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)):
     dependencies:
       '@babel/core': 7.28.4
       '@babel/helper-module-imports': 7.27.1
