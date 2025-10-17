@@ -579,7 +579,7 @@ async function lookupOnBluesky(
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<string | null> {
   const bskyURL = new URL(
-    "https://bsky.social/xrpc/com.atproto.identity.resolveHandle",
+    "https://api.bsky.app/xrpc/com.atproto.identity.resolveHandle",
   );
   bskyURL.searchParams.set("handle", handle);
 
