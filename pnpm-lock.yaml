@@ -85,6 +85,88 @@ importers:
         specifier: 4.41.0
         version: 4.41.0
 
+  templates/explorer:
+    dependencies:
+      '@atproto/common-web':
+        specifier: 0.4.3
+        version: 0.4.3
+      '@atproto/lexicon':
+        specifier: 0.5.1
+        version: 0.5.1
+      '@atproto/oauth-client':
+        specifier: 0.5.6
+        version: 0.5.6
+      '@atproto/oauth-types':
+        specifier: 0.4.1
+        version: 0.4.1
+      '@atproto/syntax':
+        specifier: 0.4.1
+        version: 0.4.1
+      '@atproto/xrpc':
+        specifier: 0.7.5
+        version: 0.7.5
+      multiformats:
+        specifier: 13.4.1
+        version: 13.4.1
+      react:
+        specifier: 19.2.0
+        version: 19.2.0
+      react-aria-components:
+        specifier: 1.12.2
+        version: 1.12.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      react-dom:
+        specifier: 19.2.0
+        version: 19.2.0(react@19.2.0)
+      react-router:
+        specifier: 0.0.0-experimental-ec0227194
+        version: 0.0.0-experimental-ec0227194(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+    devDependencies:
+      '@atproto/lex-cli':
+        specifier: 0.9.5
+        version: 0.9.5
+      '@types/node':
+        specifier: 24.5.2
+        version: 24.5.2
+      '@types/react':
+        specifier: 19.2.0
+        version: 19.2.0
+      '@types/react-dom':
+        specifier: 19.2.0
+        version: 19.2.0(@types/react@19.2.0)
+      '@vitejs/plugin-rsc':
+        specifier: 0.4.32
+        version: 0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+      modern-normalize:
+        specifier: 3.0.1
+        version: 3.0.1
+      open-props:
+        specifier: 1.7.16
+        version: 1.7.16
+      prettier:
+        specifier: 3.6.2
+        version: 3.6.2
+      protoflare:
+        specifier: workspace:*
+        version: link:../../protoflare
+      typescript:
+        specifier: 5.9.3
+        version: 5.9.3
+      vite:
+        specifier: 7.1.10
+        version: 7.1.10(@types/node@24.5.2)(jiti@2.6.1)
+      vite-plugin-devtools-json:
+        specifier: 1.0.0
+        version: 1.0.0(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+      vite-plugin-react-use-cache:
+        specifier: 0.0.3
+        version: 0.0.3(@vitejs/plugin-rsc@0.4.32(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)))(react@19.2.0)(unstorage@1.17.1)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+      vite-tsconfig-paths:
+        specifier: 5.1.4
+        version: 5.1.4(typescript@5.9.3)(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1))
+      wrangler:
+        specifier: 4.41.0
+        version: 4.41.0
+
   templates/statusphere:
     dependencies:
       '@atproto/common-web':

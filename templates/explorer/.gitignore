@@ -1,0 +1,5 @@
+.wrangler
+dist
+node_modules
+.env
+!.env.example
