@@ -10,7 +10,7 @@ import {
   unstable_createCallServer as createCallServer,
   unstable_getRSCStream as getRSCStream,
   unstable_RSCHydratedRouter as RSCHydratedRouter,
-} from "react-router";
+} from "react-router/dom";
 import type {
   DataRouter,
   unstable_RSCPayload as RSCPayload,

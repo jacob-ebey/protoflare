@@ -25,7 +25,7 @@
     "react": "19.2.0",
     "react-aria-components": "1.12.2",
     "react-dom": "19.2.0",
-    "react-router": "0.0.0-experimental-ec0227194"
+    "react-router": "0.0.0-experimental-1a4134895"
   },
   "devDependencies": {
     "@atproto/lex-cli": "0.9.5",

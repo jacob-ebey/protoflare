@@ -57,7 +57,7 @@
     "@vitejs/plugin-react": "5.0.4",
     "@vitejs/plugin-rsc": "0.4.32",
     "prettier": "3.6.2",
-    "react-router": "0.0.0-experimental-ec0227194",
+    "react-router": "0.0.0-experimental-1a4134895",
     "tsdown": "0.15.6",
     "typescript": "5.9.3",
     "vite": "7.1.10",
