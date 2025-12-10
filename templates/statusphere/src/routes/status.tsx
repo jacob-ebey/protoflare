@@ -1,4 +1,3 @@
-import { BoundaryError } from "protoflare/server";
 import type { Register } from "react-router";
 
 import { getDidDocument, getDidFromDidOrHandle, getStatusByDid } from "~/data";
@@ -6,11 +5,11 @@ import { getDidDocument, getDidFromDidOrHandle, getStatusByDid } from "~/data";
 export default async function Status({
   params: { didOrHandle },
 }: Register["pages"]["/status/:didOrHandle"]) {
-  const did = await getDidFromDidOrHandle(didOrHandle);
+  const did = await getDidFromDidOrHandle(didOrHandle).catch(() => undefined);
   const didDoc = did ? await getDidDocument(did) : undefined;
 
   if (!didDoc) {
-    throw new BoundaryError({
+    throw new Response("", {
       status: 404,
       statusText: "Could not find DID or handle",
     });

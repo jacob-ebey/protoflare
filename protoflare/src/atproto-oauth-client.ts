@@ -1,5 +1,4 @@
 import { waitUntil } from "cloudflare:workers";
-import * as dns from "node:dns/promises";
 
 import {
   didDocumentValidator,
@@ -537,16 +536,40 @@ function getRedirectURI(request: Request, callbackPathname: string) {
 
 async function lookupByDNSRecord(handle: string): Promise<string | null> {
   try {
-    const txtRecords = await dns.resolveTxt(`_atproto.${handle}`);
-
-    for (const record of txtRecords) {
-      const txtValue = Array.isArray(record) ? record.join("") : record;
-      const match = txtValue.match(/^did=(.+)$/);
-      if (match) {
-        return match[1];
+    const url = new URL("https://cloudflare-dns.com/dns-query");
+    url.searchParams.set("type", "TXT");
+    const name = `_atproto.${handle}`;
+    url.searchParams.set("name", name);
+    const response = await fetch(url, {
+      headers: {
+        accept: "application/dns-json",
+      },
+    });
+    const json = (await response.json()) as unknown;
+    if (
+      typeof json === "object" &&
+      json &&
+      "Answer" in json &&
+      Array.isArray(json.Answer)
+    ) {
+      for (const answer of json.Answer as unknown[]) {
+        if (
+          typeof answer === "object" &&
+          answer &&
+          "name" in answer &&
+          answer.name == name &&
+          "type" in answer &&
+          answer.type === 16 &&
+          "data" in answer &&
+          typeof answer.data === "string"
+        ) {
+          const match = answer.data.match(/^did=(.+)$/);
+          if (match && match[1]) {
+            return match[1];
+          }
+        }
       }
     }
-
     return null;
   } catch {
     return null;
@@ -557,21 +580,16 @@ async function lookupByWellKnownDocument(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<string | null> {
-  const url = new URL("/.well-known/atproto-did", `https://${handle}`);
-  const { ok, didPromise } = await fetch(url, {
-    cf: {
-      cacheTtl: 300,
-    },
-    signal,
-  })
-    .then((res) => ({
-      ok: res.ok,
-      didPromise: res.text().catch(() => null),
-    }))
-    .catch(() => ({ ok: false, didPromise: Promise.resolve(null) }));
-
-  if (!ok) return null;
-  return await didPromise;
+  try {
+    const url = new URL("/.well-known/atproto-did", `https://${handle}`);
+    const response = await fetch(url, {
+      signal,
+    });
+    if (response.ok) return response.text();
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 async function lookupOnBluesky(
