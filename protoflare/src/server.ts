@@ -25,12 +25,6 @@ import { createStorage } from "unstorage";
 import { provideAtProtoContext } from "./atproto";
 import { provideRequestContext } from "./request";
 import { provideSessionContext } from "./session";
-import { ERROR_BOUNDARY_ERROR, ERROR_DIGEST_BASE } from "./shared";
-import {
-  deserializeResponse,
-  serializeRequestWithoutBody,
-  serializeResponse,
-} from "./transport-tools";
 
 export {
   cacheLife,
@@ -50,23 +44,6 @@ export { destroySession, getSession } from "./session";
 declare global {
   namespace ProtoflareServer {
     export interface XrpcClient extends BaseXrpcClient {}
-  }
-}
-
-export class BoundaryError extends Error {
-  public digest: `${typeof ERROR_DIGEST_BASE}${string}`;
-
-  constructor({
-    status,
-    statusText,
-    data,
-  }: {
-    status: number;
-    statusText?: string;
-    data?: unknown;
-  }) {
-    super(ERROR_DIGEST_BASE);
-    this.digest = `${ERROR_DIGEST_BASE}${JSON.stringify([ERROR_BOUNDARY_ERROR, status, statusText, data])}`;
   }
 }
 
@@ -108,27 +85,12 @@ export function callServer({
             loadServerAction,
             request,
             routes,
-            generateResponse(match, { temporaryReferences }) {
+            generateResponse(match, options) {
               const headers = new Headers(match.headers);
               headers.set("Content-Type", "text/x-component; charset=utf-8");
 
               return new Response(
-                renderToReadableStream(match.payload, {
-                  temporaryReferences,
-                  onError(error: unknown) {
-                    if (
-                      error &&
-                      typeof error === "object" &&
-                      "digest" in error &&
-                      typeof error.digest === "string" &&
-                      error.digest.startsWith(`${ERROR_DIGEST_BASE}[`) &&
-                      error.digest.endsWith("]")
-                    ) {
-                      return error.digest;
-                    }
-                    console.error("Error during RSC render", error);
-                  },
-                }),
+                renderToReadableStream(match.payload, options),
                 {
                   status: match.statusCode,
                   headers,
@@ -147,12 +109,7 @@ export async function prerender(request: Request, serverResponse: Response) {
     typeof import("./entry.ssr")
   >("ssr", "index");
 
-  const ssrResponse = await ssr.prerender(
-    serializeRequestWithoutBody(request),
-    serializeResponse(serverResponse),
-  );
-
-  return deserializeResponse(ssrResponse);
+  return await ssr.prerender(request, serverResponse);
 }
 
 export async function handleRequest({

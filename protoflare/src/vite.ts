@@ -57,10 +57,13 @@ export function protoflare({
                 },
                 optimizeDeps: {
                   include: [
+                    "react/jsx-runtime",
+                    "react/jsx-dev-runtime",
                     "protoflare/server",
                     "react-router/internal/react-server-client",
                     "react-router > cookie",
                     "react-router > set-cookie-parser",
+                    "vite-plugin-react-use-cache/runtime",
                   ],
                   exclude: ["cloudflare:workers", "react-router"],
                 },
@@ -77,6 +80,8 @@ export function protoflare({
                 },
                 optimizeDeps: {
                   include: [
+                    "react/jsx-runtime",
+                    "react/jsx-dev-runtime",
                     "react-router",
                     "react-router/internal/react-server-client",
                   ],

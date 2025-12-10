@@ -1,6 +1,5 @@
 "use client";
 
-import { isRouteErrorResponse } from "protoflare/client";
 import {
   href,
   Link,
@@ -8,6 +7,7 @@ import {
   Meta,
   Outlet,
   ScrollRestoration,
+  isRouteErrorResponse,
   useRouteError,
 } from "react-router";
 
@@ -89,11 +89,10 @@ export function ErrorBoundary() {
   let status: number;
   let message: string;
 
-  const errorResponse = isRouteErrorResponse(error);
-  if (errorResponse) {
-    status = errorResponse.status;
-    if (errorResponse.statusText) {
-      message = errorResponse.statusText;
+  if (isRouteErrorResponse(error)) {
+    status = error.status;
+    if (error.statusText) {
+      message = error.statusText;
     }
 
     switch (status) {

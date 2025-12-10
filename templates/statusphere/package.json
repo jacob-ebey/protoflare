@@ -23,17 +23,19 @@
     "@atproto/syntax": "0.4.1",
     "@atproto/xrpc": "0.7.5",
     "multiformats": "13.4.1",
-    "react": "19.2.1",
+    "react": "canary",
     "react-aria-components": "1.12.2",
-    "react-dom": "19.2.1",
-    "react-router": "0.0.0-experimental-1a4134895"
+    "react-dom": "canary",
+    "react-router": "0.0.0-experimental-2a296c713",
+    "react-server-dom-webpack": "canary"
   },
   "devDependencies": {
     "@atproto/lex-cli": "0.9.5",
     "@types/node": "24.5.2",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
-    "@vitejs/plugin-rsc": "0.5.5",
+    "@vitejs/plugin-rsc": "0.5.6",
+    "baseline-browser-mapping": "^2.9.5",
     "modern-normalize": "3.0.1",
     "open-props": "1.7.16",
     "prettier": "3.6.2",

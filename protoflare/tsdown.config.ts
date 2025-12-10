@@ -4,7 +4,6 @@ import pkg from "./package.json" with { type: "json" };
 
 export default defineConfig({
   entry: [
-    "src/client.ts",
     "src/entry.browser.tsx",
     "src/entry.ssr.tsx",
     "src/server.ts",
