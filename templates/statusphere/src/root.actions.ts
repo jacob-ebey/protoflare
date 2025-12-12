@@ -9,7 +9,7 @@ import { href, redirectDocument } from "react-router";
 
 export async function logoutAction() {
   const client = getAtprotoClient();
-  const session = await getSession();
+  const session = getSession();
   const user = session.get("user");
 
   await Promise.allSettled([user && client.logout(user.did), destroySession()]);

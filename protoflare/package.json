@@ -58,7 +58,7 @@
     "prettier": "3.6.2",
     "react": "canary",
     "react-dom": "canary",
-    "react-router": "0.0.0-experimental-2a296c713",
+    "react-router": "0.0.0-experimental-f9e19c91c",
     "react-server-dom-webpack": "canary",
     "tsdown": "0.17.2",
     "typescript": "5.9.3",

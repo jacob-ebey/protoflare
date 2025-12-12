@@ -67,8 +67,8 @@ importers:
         specifier: canary
         version: 19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208)
       react-router:
-        specifier: 0.0.0-experimental-2a296c713
-        version: 0.0.0-experimental-2a296c713(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)
+        specifier: 0.0.0-experimental-f9e19c91c
+        version: 0.0.0-experimental-f9e19c91c(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)
       react-server-dom-webpack:
         specifier: canary
         version: 19.3.0-canary-55480b4d-20251208(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)(webpack@5.103.0)
@@ -121,8 +121,8 @@ importers:
         specifier: canary
         version: 19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208)
       react-router:
-        specifier: 0.0.0-experimental-2a296c713
-        version: 0.0.0-experimental-2a296c713(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)
+        specifier: 0.0.0-experimental-f9e19c91c
+        version: 0.0.0-experimental-f9e19c91c(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)
       react-server-dom-webpack:
         specifier: canary
         version: 19.3.0-canary-55480b4d-20251208(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208)(webpack@5.103.0)
@@ -2379,8 +2379,8 @@ packages:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
 
-  react-router@0.0.0-experimental-2a296c713:
-    resolution: {integrity: sha512-9lxIIngyyJEQHnfWQ2JFk3PGUGHmSuGqw4jv4oo2ezFkvHM4mJ1bKJRHlXKzvvbmH6LNlPVwKAZIHLClYwTlqQ==}
+  react-router@0.0.0-experimental-f9e19c91c:
+    resolution: {integrity: sha512-grJ8HikZttQZES4EhI4UqJt+llIV0KoWynh1obscJ+RymCkhBJ2EJfgZ/yzv1NTlWtO/yEKNhNtHAzMgYvAO0Q==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -5466,7 +5466,7 @@ snapshots:
 
   react-refresh@0.17.0: {}
 
-  react-router@0.0.0-experimental-2a296c713(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208):
+  react-router@0.0.0-experimental-f9e19c91c(react-dom@19.3.0-canary-55480b4d-20251208(react@19.3.0-canary-55480b4d-20251208))(react@19.3.0-canary-55480b4d-20251208):
     dependencies:
       cookie: 1.0.2
       react: 19.3.0-canary-55480b4d-20251208

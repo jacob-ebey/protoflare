@@ -26,7 +26,7 @@
     "react": "canary",
     "react-aria-components": "1.12.2",
     "react-dom": "canary",
-    "react-router": "0.0.0-experimental-2a296c713",
+    "react-router": "0.0.0-experimental-f9e19c91c",
     "react-server-dom-webpack": "canary"
   },
   "devDependencies": {
