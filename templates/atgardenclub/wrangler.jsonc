@@ -4,6 +4,10 @@
   "compatibility_date": "2025-04-03",
   "compatibility_flags": ["enable_weak_ref", "nodejs_compat"],
   "main": "./src/worker.ts",
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+  },
   "kv_namespaces": [
     {
       "binding": "OAUTH_STORAGE",
