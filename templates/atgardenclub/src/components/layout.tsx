@@ -20,8 +20,10 @@ export function Shell({
           <h1>{title}</h1>
           {description ? <h2>{description}</h2> : null}
           <a
-            href="https://github.com/jacob-ebey/atgarden"
+            href="https://github.com/jacob-ebey/protoflare/tree/main/templates/atgardenclub"
             className="link-github"
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <span>
               <svg
@@ -75,7 +77,7 @@ export function Shell({
           <ul>
             <li>
               <a
-                href="https://github.com/jacob-ebey/atgarden"
+                href="https://github.com/jacob-ebey/protoflare/tree/main/templates/atgardenclub"
                 className="link-github"
                 target="_blank"
                 rel="noopener noreferrer"
