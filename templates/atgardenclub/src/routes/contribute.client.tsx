@@ -53,7 +53,7 @@ export function ContributeForm() {
     async (_: unknown, formData: FormData) => {
       const result = await submitStyleAction(undefined as never, formData);
 
-      if (result.data?.success) {
+      if (result?.data?.success) {
         formRef.current?.reset();
         formRef.current?.querySelector("input")?.focus();
       }
