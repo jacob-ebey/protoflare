@@ -1,0 +1,47 @@
+fieldset {
+  display: grid;
+  gap: 2rem;
+  padding: 2vmin;
+  border: 1px solid var(--surface2);
+}
+
+legend {
+  font-size: clamp(1.25rem, calc(1.1145rem + 0.6024vw), 1.5rem);
+}
+
+input,
+textarea {
+  border: 1px solid var(--surface2);
+  font-family: monospace;
+  padding: 2vmin;
+}
+
+button {
+  background-color: var(--surface);
+  border: 1px solid var(--surface2);
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 1.125rem;
+  padding: 2vmin;
+  font-family: inherit;
+}
+
+button:hover {
+  background-color: var(--brand);
+  color: var(--surface);
+}
+
+.react-aria-TextField {
+  display: grid;
+  gap: 1rem;
+}
+
+.react-aria-Label {
+  font-size: 1.125rem;
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+.react-aria-Text {
+  font-size: 1rem;
+}

@@ -1,0 +1,13 @@
+TODO
+
+- point View Stylesheet link to new route that proxies records
+- add full guidelines page
+- update "contribute" instructions
+- locate dead links for og styles
+- think about moderation
+  - "moderation" roles
+  - posts public by default
+  - users can report posts
+  - moderators can hide posts
+  - moderators can filter posts by moderation reports
+  - moderators can hide posts from their own lists they don't care about

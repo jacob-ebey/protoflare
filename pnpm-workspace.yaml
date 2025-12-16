@@ -3,3 +3,6 @@ packages:
   - "templates/*"
 overrides:
   protoflare: "workspace:*"
+  react: 19.3.0-canary-bcf97c75-20251215
+  react-dom: 19.3.0-canary-bcf97c75-20251215
+  react-server-dom-webpack: 19.3.0-canary-bcf97c75-20251215

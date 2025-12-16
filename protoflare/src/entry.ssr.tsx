@@ -5,16 +5,23 @@ import {
   unstable_RSCStaticRouter as RSCStaticRouter,
 } from "react-router";
 
-export async function prerender(request: Request, serverResponse: Response) {
+export async function prerender(
+  request: Request,
+  serverResponse: Response,
+  hydrate: boolean,
+) {
   return await routeRSCServerRequest({
     request,
+    hydrate,
     createFromReadableStream,
     serverResponse,
     async renderHTML(getPayload, options) {
       const payload = getPayload();
 
       const [bootstrapScriptContent, formState] = await Promise.all([
-        import.meta.viteRsc.loadBootstrapScriptContent("index"),
+        hydrate
+          ? import.meta.viteRsc.loadBootstrapScriptContent("index")
+          : undefined,
         payload.formState,
       ]);
 

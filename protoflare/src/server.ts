@@ -60,6 +60,7 @@ export function callServer({
     options: FetchHandler | FetchHandlerOptions,
   ) => ProtoflareServer.XrpcClient;
   authNamespace: KVNamespace<string>;
+  hydrate?: boolean;
   oauthCallbackPathname: string;
   oauthClientMeatadataPathname: string;
   request: Request;
@@ -104,17 +105,22 @@ export function callServer({
   );
 }
 
-export async function prerender(request: Request, serverResponse: Response) {
+export async function prerender(
+  request: Request,
+  serverResponse: Response,
+  hydrate: boolean,
+) {
   const ssr = await import.meta.viteRsc.loadModule<
     typeof import("./entry.ssr")
   >("ssr", "index");
 
-  return await ssr.prerender(request, serverResponse);
+  return await ssr.prerender(request, serverResponse, hydrate);
 }
 
 export async function handleRequest({
   AtpBaseClient,
   authNamespace,
+  hydrate = true,
   oauthCallbackPathname,
   oauthClientMeatadataPathname,
   request,
@@ -125,6 +131,7 @@ export async function handleRequest({
     options: FetchHandler | FetchHandlerOptions,
   ) => ProtoflareServer.XrpcClient;
   authNamespace: KVNamespace<string>;
+  hydrate?: boolean;
   oauthCallbackPathname: string;
   oauthClientMeatadataPathname: string;
   request: Request;
@@ -159,12 +166,13 @@ export async function handleRequest({
     }
 
     try {
-      return await prerender(request, serverResponse);
+      return await prerender(request, serverResponse, hydrate);
     } catch (error) {
       console.error("Error during SSR prerender", error);
       throw error;
     }
-  } catch {
+  } catch (error) {
+    console.error(error);
     return new Response("Internal Server Error", { status: 500 });
   }
 }
