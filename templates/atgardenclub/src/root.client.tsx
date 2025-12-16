@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  href,
   Links,
   Meta,
   Outlet,
@@ -11,26 +12,18 @@ import {
 import { Main, Shell } from "#components/layout";
 import { defaultStyle } from "#og-styles";
 
-export function ClientLayout({
-  children,
-  lastSyncedAt,
-  location,
-  user,
-}: {
-  children: React.ReactNode;
-  lastSyncedAt: string;
-  location: string;
-  user?: {
-    did: string;
-    handle: string;
-  };
-}) {
+export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/nano-bananna-favicon.png" />
+        <link
+          rel="sitemap"
+          type="application/xml"
+          href={href("/sitemap.xml")}
+        />
         <Links />
         <Meta />
       </head>

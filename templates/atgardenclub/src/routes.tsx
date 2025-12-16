@@ -24,6 +24,7 @@ declare module "react-router" {
       "/guidelines": { params: {} };
       "/feed": { params: {} };
       "/subscribe": { params: {} };
+      "/sitemap.xml": { params: {} };
     };
   }
 }
@@ -96,5 +97,10 @@ export const routes = [
     id: "style-download",
     path: "styles/:userDidOrHandle/:rkey/styles.css",
     lazy: () => import("./routes/style-download"),
+  },
+  {
+    id: "sitemap",
+    path: "sitemap.xml",
+    lazy: () => import("./routes/sitemap"),
   },
 ] as RSCRouteConfig;
