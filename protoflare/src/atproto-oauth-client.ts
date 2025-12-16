@@ -562,7 +562,8 @@ async function lookupByDNSRecord(handle: string): Promise<string | null> {
           "data" in answer &&
           typeof answer.data === "string"
         ) {
-          const match = answer.data.match(/^did=(.+)$/);
+          const data = answer.data.startsWith('"') ? JSON.parse(answer.data) : answer.data
+          const match = data.match(/^did=(.+)$/);
           if (match && match[1]) {
             return match[1];
           }
