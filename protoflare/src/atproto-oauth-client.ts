@@ -147,7 +147,7 @@ export class AtprotoOAuthClient {
       this.#namespace.get(`access-token-${did}`),
     ]);
     if (!userState) {
-      throw new Error("Unable to find user state");
+      throw new Error("unable to find user state");
     }
 
     const {
@@ -163,7 +163,7 @@ export class AtprotoOAuthClient {
 
     if (!accessToken) {
       if (!refreshToken) {
-        throw new Error("No refresh token available");
+        throw new Error("no refresh token available");
       }
 
       const [newDpopNonce, tokenResponse] = await dpopFetch({
@@ -183,7 +183,7 @@ export class AtprotoOAuthClient {
 
       const token = oauthTokenResponseSchema.parse(await tokenResponse.json());
       if (!newDpopNonce) {
-        throw new Error("Failed to get dpop nonce");
+        throw new Error("failed to get dpop nonce");
       }
 
       await Promise.all([
@@ -240,7 +240,7 @@ export class AtprotoOAuthClient {
         service.serviceEndpoint.startsWith("https://"),
     ) as { serviceEndpoint: string } | undefined;
     if (!pds) {
-      throw new Error("Unable to find AtprotoPersonalDataServer service");
+      throw new Error("unable to find AtprotoPersonalDataServer service");
     }
 
     const { authorization_servers = [] } =
@@ -251,7 +251,7 @@ export class AtprotoOAuthClient {
       (server) => server && server.startsWith("https://"),
     );
     if (!authServer) {
-      throw new Error("Unable to find authorization server");
+      throw new Error("unable to find authorization server");
     }
 
     const state = (crypto.randomUUID() + crypto.randomUUID()).replace(/-/g, "");
@@ -307,14 +307,14 @@ export class AtprotoOAuthClient {
     await this.#namespace.delete(`state-${state}`)?.catch(() => {});
 
     if (!storedState?.verifier) {
-      throw new Error("Unable to find state");
+      throw new Error("unable to find state");
     }
 
     const { authServer, did, dpopNonce, handle, serviceEndpoint, verifier } =
       storedState;
 
     if (authServer !== issuer) {
-      throw new Error("Invalid issuer");
+      throw new Error("invalid issuer");
     }
 
     let keypair = await DPOP.generateKeyPair("ES256", { extractable: true });
@@ -343,7 +343,7 @@ export class AtprotoOAuthClient {
       retry: false,
     });
     if (!newDpopNonce) {
-      throw new Error("Failed to get dpop nonce");
+      throw new Error("failed to get dpop nonce");
     }
 
     const token = oauthTokenResponseSchema.parse(await tokenResponse.json());
@@ -492,7 +492,7 @@ export class AtprotoOAuthClient {
     }
 
     if (!dpopNonce) {
-      throw new Error("Failed to get DPoP nonce");
+      throw new Error("failed to get DPoP nonce");
     }
 
     const parsed = oauthParResponseSchema.parse(pushAuthorization);
@@ -533,7 +533,39 @@ function getRedirectURI(request: Request, callbackPathname: string) {
   ).href;
 }
 
-async function lookupByDNSRecord(handle: string): Promise<string | null> {
+export function firstSuccess<T>(
+  promises: Iterable<PromiseLike<T> | T>,
+): Promise<T> {
+  const list = Array.from(promises);
+  if (list.length === 0) {
+    return Promise.reject(new AggregateError([], "All promises rejected"));
+  }
+
+  return new Promise<T>((resolve, reject) => {
+    const errors: unknown[] = [];
+    let pending = list.length;
+
+    for (const p of list) {
+      Promise.resolve(p).then(
+        (value) => {
+          resolve(value);
+        },
+        (err) => {
+          errors.push(err);
+          pending -= 1;
+          if (pending === 0) {
+            reject(new AggregateError(errors, "all promises rejected"));
+          }
+        },
+      );
+    }
+  });
+}
+
+async function lookupByDNSRecord(
+  handle: string,
+  { signal }: { signal?: AbortSignal } = {},
+): Promise<string> {
   try {
     const url = new URL("https://cloudflare-dns.com/dns-query");
     url.searchParams.set("type", "TXT");
@@ -543,6 +575,7 @@ async function lookupByDNSRecord(handle: string): Promise<string | null> {
       headers: {
         accept: "application/dns-json",
       },
+      signal,
     });
     const json = (await response.json()) as unknown;
     if (
@@ -562,39 +595,36 @@ async function lookupByDNSRecord(handle: string): Promise<string | null> {
           "data" in answer &&
           typeof answer.data === "string"
         ) {
-          const match = answer.data.match(/^did=(.+)$/);
+          const match = answer.data
+            .replace(/^"/, "")
+            .replace(/"$/, "")
+            .match(/^did=(.+)$/);
           if (match && match[1]) {
             return match[1];
           }
         }
       }
     }
-    return null;
-  } catch {
-    return null;
-  }
+  } catch {}
+  throw new Error(`failed to resolve DID through DNS for ${handle}`);
 }
 
 async function lookupByWellKnownDocument(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
-): Promise<string | null> {
+): Promise<string> {
   try {
     const url = new URL("/.well-known/atproto-did", `https://${handle}`);
-    const response = await fetch(url, {
-      signal,
-    });
+    const response = await fetch(url, { signal });
     if (response.ok) return response.text();
-    return null;
-  } catch {
-    return null;
-  }
+  } catch {}
+  throw new Error(`failed to resolve DID through .well-known for ${handle}`);
 }
 
 async function lookupOnBluesky(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
-): Promise<string | null> {
+): Promise<string> {
   const bskyURL = new URL(
     "https://api.bsky.app/xrpc/com.atproto.identity.resolveHandle",
   );
@@ -603,32 +633,24 @@ async function lookupOnBluesky(
   try {
     const response = await fetch(bskyURL, { signal });
     const data = await response.json<{ did?: string }>();
-    return data?.did ?? null;
-  } catch {
-    return null;
-  }
+    const did = data?.did ?? null;
+    if (did) return did;
+  } catch {}
+  throw new Error(`failed to resolve DID through Bluesky for ${handle}`);
 }
 
 export async function resolveDidFromHandle(
   handle: string,
   { signal }: { signal?: AbortSignal } = {},
 ) {
-  let did = await lookupByDNSRecord(handle);
-
-  if (!did) {
-    did = await lookupByWellKnownDocument(handle, { signal });
-  }
-
-  if (!did) {
-    did = await lookupOnBluesky(handle, { signal });
-  }
-
-  if (!did) {
-    throw new Error(`Failed to resolve DID for handle: ${handle}`);
-  }
-
-  ensureValidDid(did);
-  return did;
+  // Race all lookups and return the first successful result
+  const result = await firstSuccess([
+    lookupByDNSRecord(handle, { signal }),
+    lookupByWellKnownDocument(handle, { signal }),
+    lookupOnBluesky(handle, { signal }),
+  ]);
+  ensureValidDid(result);
+  return result;
 }
 
 export async function resolveDidDocument(
@@ -647,7 +669,7 @@ export async function resolveDidDocument(
 
   let document: unknown | null;
   if (!ok || !(document = await documentPromise)) {
-    throw new Error(`Failed to resolve DID document from ${did}`);
+    throw new Error(`failed to resolve DID document from ${did}`);
   }
 
   return didDocumentValidator.parse(document);
@@ -681,7 +703,7 @@ async function getOAuthProtectedResourceMetadata(
       await oauthProtectedResourceMetadataPromise)
   ) {
     throw new Error(
-      `Failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`,
+      `failed to resolve OAuth protected resource metadata from ${oauthEndpoint.href}`,
     );
   }
 
