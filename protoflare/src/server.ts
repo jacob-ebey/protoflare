@@ -18,7 +18,11 @@ import {
   unstable_matchRSCServerRequest as matchRSCServerRequest,
   type unstable_RSCRouteConfig as RSCRouteConfig,
 } from "react-router";
-import { provideCache } from "vite-plugin-react-use-cache/runtime";
+import {
+  cacheTag as cacheTagRuntime,
+  provideCache,
+  revalidateTag as revalidateTagRuntime,
+} from "vite-plugin-react-use-cache/runtime";
 import { createUnstorageCache } from "vite-plugin-react-use-cache/unstorage";
 import { createStorage } from "unstorage";
 
@@ -26,11 +30,7 @@ import { provideAtProtoContext } from "./atproto";
 import { provideRequestContext } from "./request";
 import { provideSessionContext } from "./session";
 
-export {
-  cacheLife,
-  cacheTag,
-  revalidateTag,
-} from "vite-plugin-react-use-cache/runtime";
+export { cacheLife } from "vite-plugin-react-use-cache/runtime";
 
 export { getAtprotoClient } from "./atproto";
 export {
@@ -45,6 +45,14 @@ declare global {
   namespace ProtoflareServer {
     export interface XrpcClient extends BaseXrpcClient {}
   }
+}
+
+export function cacheTag(tag: string): void {
+  return cacheTagRuntime(btoa(tag));
+}
+
+export function revalidateTag(tag: string): Promise<void> {
+  return revalidateTagRuntime(btoa(tag));
 }
 
 export function callServer({
