@@ -1,10 +1,7 @@
 import { AtUri } from "@atproto/syntax";
 import autoprefixer from "autoprefixer";
 import postcss from "postcss";
-import {
-  JetstreamConsumerDurableObject,
-  revalidateTag,
-} from "protoflare/server";
+import { JetstreamConsumerDurableObject } from "protoflare/server";
 
 import * as lexicons from "#lexicons/lexicons";
 import * as StyleStage from "#lexicons/types/club/atgarden/stylestage";
@@ -68,8 +65,8 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
                     )
                     .run();
 
-                  this.ctx.waitUntil(revalidateTag("stylestage"));
-                  this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
+                  // this.ctx.waitUntil(revalidateTag("stylestage"));
+                  // this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
                   break;
                 }
                 case "delete": {
@@ -86,8 +83,8 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
                     .bind(uri.href)
                     .run();
 
-                  this.ctx.waitUntil(revalidateTag("stylestage"));
-                  this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
+                  // this.ctx.waitUntil(revalidateTag("stylestage"));
+                  // this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
                   break;
                 }
               }
