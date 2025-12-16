@@ -37,15 +37,33 @@ export default function OgStyle({
               <h2>Setting the Stage</h2>
               <p>
                 In 2003,{" "}
-                <a href="http://daveshea.com/projects/zen/">Dave Shea</a> began
-                a legendary project called{" "}
-                <a href="http://www.csszengarden.com/">CSS Zen Garden</a> that
-                provided a demonstration of "what can be accomplished through
-                CSS-based design" until submissions stopped in 2013.{" "}
+                <a
+                  href="http://daveshea.com/projects/zen/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Dave Shea
+                </a>{" "}
+                began a legendary project called{" "}
+                <a
+                  href="http://www.csszengarden.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  CSS Zen Garden
+                </a>{" "}
+                that provided a demonstration of "what can be accomplished
+                through CSS-based design" until submissions stopped in 2013.{" "}
                 <a href="">Stephanie Eckles</a> rekindled that spirit with{" "}
-                <a href="https://stylestage.dev/">Style Stage</a> by providing
-                this page (minus a few prose changes) as the base HTML for
-                contributors - like you! - to re-style by submitting an
+                <a
+                  href="https://stylestage.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Style Stage
+                </a>{" "}
+                by providing this page (minus a few prose changes) as the base
+                HTML for contributors - like you! - to re-style by submitting an
                 alternate stylesheet.
               </p>
               <p>
@@ -120,7 +138,11 @@ export default function OgStyle({
               <h3>TL;DR</h3>
               <p>
                 All submissions will be autoprefixed and prepended with the{" "}
-                <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">
+                <a
+                  href="https://creativecommons.org/licenses/by-nc-sa/3.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   CC BY-NC-SA license
                 </a>{" "}
                 as well as attribution using the metadata you provide. You may
@@ -172,7 +194,11 @@ export default function OgStyle({
                 <li>
                   Download the source files listed below to use as a reference
                   to build your stylesheet, or start from the{" "}
-                  <a href="http://codepen.io/pen?template=YPqbegK">
+                  <a
+                    href="http://codepen.io/pen?template=YPqbegK"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     CodePen template
                   </a>
                   .

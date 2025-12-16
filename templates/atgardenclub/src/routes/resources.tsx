@@ -46,7 +46,11 @@ export default function Resources() {
               <blockquote>
                 <p>
                   <strong>Want to get started quickly?</strong> You can fork the{" "}
-                  <a href="http://codepen.io/pen?template=YPqbegK">
+                  <a
+                    href="http://codepen.io/pen?template=YPqbegK"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     CodePen template
                   </a>{" "}
                   which includes the base HTML and allows you to experiment with
@@ -66,7 +70,11 @@ export default function Resources() {
                   tab over your layout and if you loose track of where you've
                   tabbed, fix the <code>:focus</code>! If you're newer to web
                   accessibility,{" "}
-                  <a href="https://dev.to/5t3ph/introduction-to-web-accessibility-5cmp">
+                  <a
+                    href="https://dev.to/5t3ph/introduction-to-web-accessibility-5cmp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Stephanie Eckles's intro article
                   </a>{" "}
                   covers contrast, keyboard interaction, and more including
@@ -80,7 +88,14 @@ export default function Resources() {
                   &quot;button&quot; background and the surface behind the
                   button. Good news! I've created a web app to help you with
                   this contrast, check it out at{" "}
-                  <a href="https://buttonbuddy.dev">ButtonBuddy.dev</a>.
+                  <a
+                    href="https://buttonbuddy.dev"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    ButtonBuddy.dev
+                  </a>
+                  .
                 </li>
                 <li>
                   <strong>Don't forget the skip link!</strong> - The{" "}
@@ -96,7 +111,11 @@ export default function Resources() {
                 <li>
                   <strong>Use a style reset</strong> - The source styles include
                   a modified version of Andy Bell's{" "}
-                  <a href="https://github.com/hankchizljaw/modern-css-reset">
+                  <a
+                    href="https://github.com/hankchizljaw/modern-css-reset"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Modern CSS Reset
                   </a>
                 </li>
@@ -113,7 +132,11 @@ export default function Resources() {
                   this project. With limited availability of classes and IDs,
                   you will have much greater success by working <em>with</em>{" "}
                   inheritance. Need a refresher?{" "}
-                  <a href="https://dev.to/5t3ph/intro-to-the-css-cascade-the-c-in-css-1kh0">
+                  <a
+                    href="https://dev.to/5t3ph/intro-to-the-css-cascade-the-c-in-css-1kh0"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Check out Stephanie Eckles's episode about the cascade
                   </a>{" "}
                   from their web development course for beginners.
@@ -124,9 +147,19 @@ export default function Resources() {
                   get familiar with the wide range of ways you can select
                   elements in CSS. I really love this interactive game that
                   covers <em>32</em> selector combinations:{" "}
-                  <a href="https://flukeout.github.io/">CSS Diner</a>. I've also
-                  written{" "}
-                  <a href="https://moderncss.dev/guide-to-advanced-css-selectors-part-one/">
+                  <a
+                    href="https://flukeout.github.io/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    CSS Diner
+                  </a>
+                  . I've also written{" "}
+                  <a
+                    href="https://moderncss.dev/guide-to-advanced-css-selectors-part-one/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     an in-depth guide to advanced CSS selectors
                   </a>{" "}
                   including examples.
@@ -135,7 +168,11 @@ export default function Resources() {
                   <strong>Cozy up to pseudo elements</strong> - You may not be
                   allowed to alter the HTML, but that doesn't mean you can't add
                   extra elements!{" "}
-                  <a href="https://css-tricks.com/pseudo-element-roundup/">
+                  <a
+                    href="https://css-tricks.com/pseudo-element-roundup/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     Pseudo elements
                   </a>{" "}
                   allow you to prepend and append extra content, greatly
@@ -146,7 +183,11 @@ export default function Resources() {
                   and even text (it's how the &quot;coach marks&quot; are
                   applied on the Main Stage). Check out Stephanie Eckles's guide
                   to{" "}
-                  <a href="https://moderncss.dev/guide-to-advanced-css-selectors-part-two/">
+                  <a
+                    href="https://moderncss.dev/guide-to-advanced-css-selectors-part-two/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     learn more about using pseudo elements
                   </a>
                   .
@@ -154,7 +195,11 @@ export default function Resources() {
                 <li>
                   <strong>Try out CSS custom properties</strong> - The source
                   CSS makes use of{" "}
-                  <a href="https://12daysofweb.dev/2021/css-custom-properties/">
+                  <a
+                    href="https://12daysofweb.dev/2021/css-custom-properties/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     CSS custom properties
                   </a>{" "}
                   (aka &quot;variables&quot;). Learn from experts like{" "}

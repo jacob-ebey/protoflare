@@ -51,7 +51,11 @@ export default function Contribute() {
                 <li>
                   You retain copyright over original graphics, and your
                   stylesheet will receive the{" "}
-                  <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/">
+                  <a
+                    href="https://creativecommons.org/licenses/by-nc-sa/3.0/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     CC BY-NC-SA license
                   </a>
                   .
@@ -80,7 +84,14 @@ export default function Contribute() {
                 <li>
                   Designs should be responsive and usable across the most widely
                   supported browsers (check
-                  <a href="https://caniuse.com">caniuse data</a> as needed)
+                  <a
+                    href="https://caniuse.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    caniuse data
+                  </a>{" "}
+                  as needed)
                 </li>
                 <li>
                   When cutting-edge properties are used, appropriate fallbacks
