@@ -9,6 +9,7 @@ import {
   destroySession,
   getAtprotoClient,
   getSession,
+  revalidateTag,
 } from "protoflare/server";
 import { href, redirectDocument } from "react-router";
 
@@ -126,6 +127,8 @@ export async function submitStyleAction(_: unknown, formData: FormData) {
           }),
         );
       }
+
+      await revalidateTag("stylestage");
 
       return {
         success: true,

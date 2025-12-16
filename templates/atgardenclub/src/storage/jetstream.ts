@@ -1,18 +1,25 @@
 import { AtUri } from "@atproto/syntax";
 import autoprefixer from "autoprefixer";
 import postcss from "postcss";
-import { JetstreamConsumerDurableObject } from "protoflare/server";
+import {
+  JetstreamConsumerDurableObject,
+  revalidateTag,
+} from "protoflare/server";
 
 import * as lexicons from "#lexicons/lexicons";
 import * as StyleStage from "#lexicons/types/club/atgarden/stylestage";
 
 const wantedCollections = ["club.atgarden.stylestage"] as const;
 
+const sql = String.raw;
+
 export class JetstreamConsumer extends JetstreamConsumerDurableObject<
   typeof lexicons,
   typeof wantedCollections
 > {
   constructor(ctx: DurableObjectState, env: Env) {
+    env.DB.prepare(sql``).first();
+
     super(ctx, env, {
       lexicons: lexicons.lexicons,
       wantedCollections,
@@ -29,28 +36,30 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
 
                   let { css } = await postcss([autoprefixer()])
                     .process(record.styles)
-                    .catch((reason) => ({ css: "" }));
+                    .catch(() => ({ css: "" }));
                   css = css.trim();
 
                   if (!css) return;
 
+                  const uri = AtUri.make(
+                    message.did,
+                    message.commit.collection,
+                    message.commit.rkey,
+                  );
+
                   await env.DB.prepare(
-                    /* SQL */ `
-                    INSERT INTO stylestage (
-                      uri, authorDid, title, styles, createdAt, indexedAt
-                    ) VALUES (?, ?, ?, ?, ?, ?)
-                    ON CONFLICT(uri) DO UPDATE SET
-                      title = excluded.title,
-                      styles = excluded.styles,
-                      indexedAt = excluded.indexedAt;
-                  `,
+                    sql`
+                      INSERT INTO stylestage (
+                        uri, authorDid, title, styles, createdAt, indexedAt
+                      ) VALUES (?, ?, ?, ?, ?, ?)
+                      ON CONFLICT(uri) DO UPDATE SET
+                        title = excluded.title,
+                        styles = excluded.styles,
+                        indexedAt = excluded.indexedAt;
+                    `,
                   )
                     .bind(
-                      AtUri.make(
-                        message.did,
-                        message.commit.collection,
-                        message.commit.rkey,
-                      ).href,
+                      uri.href,
                       message.did,
                       record.title,
                       record.styles,
@@ -58,24 +67,29 @@ export class JetstreamConsumer extends JetstreamConsumerDurableObject<
                       new Date().toISOString(),
                     )
                     .run();
+
+                  this.ctx.waitUntil(revalidateTag("stylestage"));
+                  this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
                   break;
                 }
-                case "delete":
+                case "delete": {
+                  const uri = AtUri.make(
+                    message.did,
+                    message.commit.collection,
+                    message.commit.rkey,
+                  );
                   await env.DB.prepare(
-                    /* SQL */ `
-                  DELETE FROM stylestage WHERE uri = ?;
-                `,
+                    sql`
+                      DELETE FROM stylestage WHERE uri = ?;
+                    `,
                   )
-                    .bind(
-                      AtUri.make(
-                        message.did,
-                        message.commit.collection,
-                        message.commit.rkey,
-                      ).href,
-                    )
+                    .bind(uri.href)
                     .run();
 
+                  this.ctx.waitUntil(revalidateTag("stylestage"));
+                  this.ctx.waitUntil(revalidateTag(`stylestage/${uri.href}`));
                   break;
+                }
               }
             }
             break;

@@ -1,13 +1,14 @@
 TODO
 
-- point View Stylesheet link to new route that proxies records
-- add full guidelines page
-- update "contribute" instructions
 - locate dead links for og styles
+
 - think about moderation
-  - "moderation" roles
+  - "moderation" roles in our DB, not the network
   - posts public by default
+  - users can hide posts
   - users can report posts
-  - moderators can hide posts
+  - users can hide other users
+  - moderators can delete posts
+  - moderators can block users (stops ingestion, deletes submissions from DB, and stops login)
+  - blocked users can still self host and access their data
   - moderators can filter posts by moderation reports
-  - moderators can hide posts from their own lists they don't care about

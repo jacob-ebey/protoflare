@@ -1,6 +1,6 @@
 import { getDidDocument, listStyles, StyleStagePreview } from "#data";
 import { AtUri } from "@atproto/syntax";
-import { cacheLife } from "protoflare/server";
+import { cacheLife, cacheTag } from "protoflare/server";
 import { href } from "react-router";
 
 export function CurrentlyStagedStyle({
@@ -91,6 +91,7 @@ export function CurrentlyStagedStyleWebsiteLink({
 export async function FeaturedStyles() {
   "use cache";
   cacheLife("seconds");
+  cacheTag("stylesstage");
 
   const { results } = await listStyles({ limit: 3 });
 
