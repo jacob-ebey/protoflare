@@ -88,7 +88,7 @@ export function CurrentlyStagedStyleWebsiteLink({
   );
 }
 
-export async function FeaturedStyles() {
+export async function FeaturedStyles({ nouserlink }: { nouserlink?: boolean }) {
   "use cache";
   cacheLife("seconds");
   cacheTag("stylesstage");
@@ -101,7 +101,11 @@ export async function FeaturedStyles() {
         <h2>Latest Styles</h2>
         <ul className="features">
           {results.map((style) => (
-            <FeaturedStyle key={style.uri} style={style} />
+            <FeaturedStyle
+              key={style.uri}
+              style={style}
+              nouserlink={nouserlink}
+            />
           ))}
         </ul>
 
@@ -113,7 +117,13 @@ export async function FeaturedStyles() {
   );
 }
 
-async function FeaturedStyle({ style }: { style: StyleStagePreview }) {
+async function FeaturedStyle({
+  nouserlink,
+  style,
+}: {
+  nouserlink?: boolean;
+  style: StyleStagePreview;
+}) {
   const didDocument = await getDidDocument(style.authorDid);
   const uri = new AtUri(style.uri);
 
@@ -129,7 +139,16 @@ async function FeaturedStyle({ style }: { style: StyleStagePreview }) {
           {style.title}
           <span aria-hidden="true"></span>
         </a>{" "}
-        <span>by {didDocument.displayName}</span>
+        {nouserlink ? (
+          <span>by {didDocument.displayName}</span>
+        ) : (
+          <span>
+            by{" "}
+            <a href={`https://bsky.app/profile/${didDocument.displayName}`}>
+              {didDocument.displayName}
+            </a>
+          </span>
+        )}
       </span>
     </li>
   );

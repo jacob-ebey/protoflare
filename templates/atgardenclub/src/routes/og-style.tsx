@@ -266,7 +266,7 @@ export default function OgStyle({
             />
           ) : null}
         </CurrentlyStagedStyle>
-        <FeaturedStyles />
+        <FeaturedStyles nouserlink />
       </Shell>
     </>
   );
