@@ -22,7 +22,7 @@ const sql = String.raw;
 export async function loginAction(
   _: unknown,
   formData: FormData,
-): Promise<FormActionResult<typeof LoginSchema, void>> {
+): Promise<FormActionResult<typeof LoginSchema, void> | undefined> {
   return formAction(formData, LoginSchema, async ({ handle }, ActionError) => {
     const client = getAtprotoClient();
     let redirectURL: URL;

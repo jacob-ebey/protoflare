@@ -35,7 +35,7 @@ export async function formAction<T extends Type<any>, R>(
   formData: FormData,
   schema: T,
   action: FormAction<T, R>,
-): Promise<FormActionResult<T, R>> {
+): Promise<FormActionResult<T, R> | undefined> {
   const input = Object.fromEntries(formData) as T["infer"];
   const out = schema(input);
   if (out instanceof type.errors) {
