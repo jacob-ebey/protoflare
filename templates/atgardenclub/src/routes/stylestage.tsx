@@ -15,6 +15,7 @@ import {
   StyleStage,
 } from "#data";
 import { AtUri } from "@atproto/syntax";
+import { preload, preinit } from "react-dom";
 
 export default async function StyleStage({
   params,
@@ -39,6 +40,17 @@ export default async function StyleStage({
     if (!style || !didDocument) throw new Response("", { status: 404 });
   }
 
+  const stylesheet =
+    style && didDocument
+      ? href("/styles/:userDidOrHandle/:rkey/styles.css", {
+          userDidOrHandle: didDocument.displayName,
+          rkey: new AtUri(style.uri).rkey,
+        })
+      : `https://stylestage.dev/styles/css/${defaultStyle.id}.css`;
+
+  preinit(stylesheet, { as: "style" });
+  preload(stylesheet, { as: "style" });
+
   return (
     <>
       <title>{`${style ? style.title || "Unknown" : "Home"} | AT Garden Club`}</title>
@@ -50,20 +62,7 @@ export default async function StyleStage({
             : "AT Garden Club - A decentralized CSS showcase where contributors own their data. Inspired by CSS Zen Garden, powered by the AT Protocol. Submit your stylesheet today!"
         }
       />
-      {style && didDocument ? (
-        <link
-          rel="stylesheet"
-          href={href("/styles/:userDidOrHandle/:rkey/styles.css", {
-            userDidOrHandle: didDocument.displayName,
-            rkey: new AtUri(style.uri).rkey,
-          })}
-        />
-      ) : (
-        <link
-          rel="stylesheet"
-          href={`https://stylestage.dev/styles/css/${defaultStyle.id}.css`}
-        />
-      )}
+      <link rel="stylesheet" href={stylesheet} />
 
       <Shell
         title="AT Garden Club"
