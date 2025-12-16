@@ -488,8 +488,7 @@ export class AtprotoOAuthClient {
 
     let pushAuthorization: unknown | null;
     if (!ok || !(pushAuthorization = await pushAuthorizationPromise)) {
-      console.error(await pushAuthorizationPromise);
-      throw new Error("Failed to push authorization");
+      throw new Error("failed to push authorization");
     }
 
     if (!dpopNonce) {

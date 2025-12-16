@@ -169,18 +169,17 @@ export async function handleRequest({
           }),
       );
     } catch (error) {
-      console.error("Error during RSC handling", error);
+      console.error("error during RSC render", error);
       throw error;
     }
 
     try {
       return await prerender(request, serverResponse, hydrate);
     } catch (error) {
-      console.error("Error during SSR prerender", error);
+      console.error("error during SSR prerender", error);
       throw error;
     }
-  } catch (error) {
-    console.error(error);
+  } catch {
     return new Response("Internal Server Error", { status: 500 });
   }
 }
@@ -246,21 +245,19 @@ export class JetstreamConsumerDurableObject<
     this.#handleMessage = handleMessage;
 
     this.#lastEventTime = 0;
-    ctx
-      .blockConcurrencyWhile(async () => {
-        this.#lastEventTime =
-          (await ctx.storage.get<number>("lastEventTime", {
-            allowConcurrency: true,
-            noCache: true,
-          })) ??
-          backfillStart ??
-          0;
-      })
-      .then(() =>
-        this.#startLoop().catch((reason) =>
-          console.error("Failed to start loop: ", reason),
-        ),
-      );
+    ctx.waitUntil(
+      ctx
+        .blockConcurrencyWhile(async () => {
+          this.#lastEventTime =
+            (await ctx.storage.get<number>("lastEventTime", {
+              allowConcurrency: true,
+              noCache: true,
+            })) ??
+            backfillStart ??
+            0;
+        })
+        .then(() => this.#startLoop()),
+    );
   }
 
   getLastEventTime(): number {
@@ -268,9 +265,7 @@ export class JetstreamConsumerDurableObject<
   }
 
   async alarm() {
-    await this.#startLoop().catch((reason) =>
-      console.error("Failed to restart loop", reason),
-    );
+    this.ctx.waitUntil(this.#startLoop());
   }
 
   #saveLastEventTimeQueued = 0;
@@ -286,7 +281,7 @@ export class JetstreamConsumerDurableObject<
           try {
             await this.ctx.storage.put("lastEventTime", this.#lastEventTime);
           } catch (error) {
-            console.error("Failed to save lastEventTime:", error);
+            console.error("failed to save lastEventTime:", error);
           } finally {
             this.#saveLastEventTimeQueued = 0;
             resolve();
@@ -307,55 +302,85 @@ export class JetstreamConsumerDurableObject<
       return;
     }
 
+    try {
+      this.#websocket?.close();
+      this.#websocket = null;
+    } catch {}
+
     const url = new URL("wss://jetstream1.us-west.bsky.network/subscribe");
     url.searchParams.set("cursor", String(this.#lastEventTime));
     for (const collection of this.#wantedCollections) {
       url.searchParams.append("wantedCollections", collection);
     }
 
-    console.info("Connecting to ", url.href);
-    this.#websocket = new WebSocket(url);
-    this.#websocket.addEventListener("open", () => {
-      console.info("Connected to Jetstream.");
-    });
-    this.#websocket.addEventListener("error", (event) => {
-      console.error("Got error from WebSocket: ", event);
-      this.#websocket = null;
-      this.#startLoop();
-    });
-    this.#websocket.addEventListener("close", (event) => {
-      console.warn("WebSocket closed: ", event.reason);
-      this.#websocket = null;
-      this.#startLoop();
-    });
-    this.#websocket.addEventListener("message", (event) => {
-      try {
-        // TODO: decompress with zstd compression dictionary
-        const message: JetStreamMessage<WantedIds[number]> = JSON.parse(
-          event.data as string,
-        );
-
-        this.#lastEventTime = message.time_us;
-        this.#saveLastEventTimeOnATimeout();
-
-        if (message.kind === "commit" && message.commit) {
-          const uri = `lex:${message.commit.collection}`;
-          const lexicon = this.#lexicons.get(uri);
-          const valid = lexicon
-            ? message.commit.operation === "create"
-              ? this.#lexicons.validate(uri, message.commit.record)
-              : { success: true }
-            : { success: false };
-
-          if (valid.success) {
-            (async () => this.#handleMessage(message))().catch((reason) => {
-              console.error("Dev failed to handle message", reason);
-            });
-          }
+    return new Promise<void>((resolve, reject) => {
+      let settled = false;
+      this.#websocket = new WebSocket(url);
+      this.#websocket.addEventListener("open", () => {
+        settled = true;
+        resolve();
+        console.info("connected to jetstream");
+      });
+      this.#websocket.addEventListener("error", (event: any) => {
+        if (!settled) {
+          settled = true;
+          reject(
+            new Error(
+              "jetstream connection error with code: " +
+                event?.code +
+                " reason: " +
+                event?.reason,
+            ),
+          );
         }
-      } catch (error) {
-        console.error("Failed to handle message", error);
-      }
+        console.error(
+          "jetstream connection error with code:",
+          event?.code,
+          "reason:",
+          event?.reason,
+        );
+        this.#websocket = null;
+        this.ctx.waitUntil(this.#startLoop());
+      });
+      this.#websocket.addEventListener("close", () => {
+        if (!settled) {
+          settled = true;
+          reject(new Error("jetstream connection closed"));
+        }
+        this.#websocket = null;
+        this.ctx.waitUntil(this.#startLoop());
+      });
+      this.#websocket.addEventListener("message", (event) => {
+        try {
+          // TODO: decompress with zstd compression dictionary
+          const message: JetStreamMessage<WantedIds[number]> = JSON.parse(
+            event.data as string,
+          );
+
+          this.#lastEventTime = message.time_us;
+          this.#saveLastEventTimeOnATimeout();
+
+          if (message.kind === "commit" && message.commit) {
+            const uri = `lex:${message.commit.collection}`;
+            const lexicon = this.#lexicons.get(uri);
+            const valid = lexicon
+              ? message.commit.operation === "create"
+                ? this.#lexicons.validate(uri, message.commit.record)
+                : { success: true }
+              : { success: false };
+
+            if (valid.success) {
+              this.ctx.waitUntil(
+                (async () => this.#handleMessage(message))().catch(
+                  console.error.bind(console),
+                ),
+              );
+            }
+          }
+        } catch (error) {
+          console.error("failed to handle jetstream message", error);
+        }
+      });
     });
   }
 

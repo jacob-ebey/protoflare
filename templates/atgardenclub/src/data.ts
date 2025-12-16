@@ -28,6 +28,11 @@ function decodeCursor(cursor: string | null | undefined): Cursor | undefined {
 
 const sql = String.raw;
 
+export const getLastEventTime = cache(async () => {
+  const jetstream = env.JETSTREAM_CONSUMER.getByName("main");
+  return await jetstream.getLastEventTime();
+});
+
 const getDidFromHandle = cache<typeof resolveDidFromHandle>((...args) => {
   "use cache";
   return resolveDidFromHandle(...args);

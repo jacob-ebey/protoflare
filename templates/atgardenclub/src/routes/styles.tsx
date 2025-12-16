@@ -5,7 +5,12 @@ import { cacheLife, cacheTag, getRequest } from "protoflare/server";
 import { href } from "react-router";
 
 import { Main, Shell } from "#components/layout";
-import { getDidDocument, listStyles, StyleStagePreview } from "#data";
+import {
+  getDidDocument,
+  getLastEventTime,
+  listStyles,
+  StyleStagePreview,
+} from "#data";
 import { defaultStyle } from "#og-styles";
 
 import { NextPageButton, RefreshButton } from "./styles.client";
@@ -28,7 +33,7 @@ export default async function AllStyles() {
         cursor,
         limit: stylesLimit,
       }),
-      jetstream.getLastEventTime(),
+      getLastEventTime(),
     ]);
 
   const date = new Date(lastUpdatedTimestampMilliseconds / 1000).toUTCString();
