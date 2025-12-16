@@ -14,10 +14,9 @@ import {
   getStyle,
   StyleStage,
 } from "#data";
-import { didDocument } from "@atproto/common-web";
 import { AtUri } from "@atproto/syntax";
 
-export default async function Home({
+export default async function StyleStage({
   params,
 }:
   | Register["pages"]["/"]
@@ -51,8 +50,14 @@ export default async function Home({
             : "AT Garden Club - A decentralized CSS showcase where contributors own their data. Inspired by CSS Zen Garden, powered by the AT Protocol. Submit your stylesheet today!"
         }
       />
-      {style ? (
-        <style dangerouslySetInnerHTML={{ __html: style.styles }} />
+      {style && didDocument ? (
+        <link
+          rel="stylesheet"
+          href={href("/styles/:userDidOrHandle/:rkey/styles.css", {
+            userDidOrHandle: didDocument.displayName,
+            rkey: new AtUri(style.uri).rkey,
+          })}
+        />
       ) : (
         <link
           rel="stylesheet"
