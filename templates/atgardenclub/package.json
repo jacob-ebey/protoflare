@@ -22,6 +22,8 @@
     "@atproto/oauth-types": "0.4.1",
     "@atproto/syntax": "0.4.1",
     "@atproto/xrpc": "0.7.5",
+    "@microlabs/otel-cf-workers": "1.0.0-rc.52",
+    "@opentelemetry/api": "1.9.0",
     "arktype": "2.1.29",
     "autoprefixer": "10.4.23",
     "multiformats": "13.4.1",
