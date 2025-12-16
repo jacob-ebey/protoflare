@@ -1,0 +1,51 @@
+{
+  "name": "cloudflare-vite-get-started",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@10.17.1",
+  "scripts": {
+    "build": "vite build",
+    "db:migrate": "wrangler d1 migrations apply DB",
+    "dev": "vite dev",
+    "deploy": "npm run build && wrangler deploy",
+    "format": "prettier --write .",
+    "lexgen": "lex gen-api --yes src/lexicons ./lexicons/* ./lexicons/atproto/app/bsky/*/* ./lexicons/atproto/com/atproto/*/* && pnpm format",
+    "preview": "npm run build && vite preview",
+    "typecheck": "tsc --noEmit",
+    "typegen": "wrangler types && pnpm format"
+  },
+  "dependencies": {
+    "@atproto/common-web": "0.4.3",
+    "@atproto/lexicon": "0.5.1",
+    "@atproto/oauth-client": "0.5.6",
+    "@atproto/oauth-types": "0.4.1",
+    "@atproto/syntax": "0.4.1",
+    "@atproto/xrpc": "0.7.5",
+    "arktype": "2.1.29",
+    "autoprefixer": "10.4.23",
+    "multiformats": "13.4.1",
+    "postcss": "8.5.6",
+    "react": "canary",
+    "react-aria-components": "3.0.0-nightly-6c29f7a30-251214",
+    "react-dom": "canary",
+    "react-router": "0.0.0-experimental-f9e19c91c",
+    "react-server-dom-webpack": "canary"
+  },
+  "devDependencies": {
+    "@atproto/lex-cli": "0.9.5",
+    "@types/node": "24.5.2",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "@vitejs/plugin-rsc": "0.5.6",
+    "baseline-browser-mapping": "^2.9.5",
+    "modern-normalize": "3.0.1",
+    "protoflare": "*",
+    "typescript": "5.9.3",
+    "vite": "7.1.10",
+    "vite-plugin-devtools-json": "1.0.0",
+    "vite-plugin-react-use-cache": "0.0.4",
+    "vite-tsconfig-paths": "5.1.4",
+    "wrangler": "4.53.0"
+  }
+}

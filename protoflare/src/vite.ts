@@ -28,7 +28,7 @@ export function protoflare({
       entries: {
         client: "protoflare/entry.browser",
         ssr: "protoflare/entry.ssr",
-        ...rscConfig,
+        ...rscConfig?.entries,
       },
       serverHandler: false,
       loadModuleDevProxy: true,

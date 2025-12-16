@@ -1,0 +1,27 @@
+{
+  "lexicon": 1,
+  "id": "club.atgarden.stylestage",
+  "defs": {
+    "main": {
+      "type": "record",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["title", "styles", "createdAt"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "styles": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime"
+          }
+        }
+      }
+    }
+  }
+}
