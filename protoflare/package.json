@@ -14,6 +14,7 @@
   "exports": {
     "./entry.browser": "./dist/entry.browser.mjs",
     "./entry.ssr": "./dist/entry.ssr.mjs",
+    "./otel": "./dist/otel.mjs",
     "./server": "./dist/server.mjs",
     "./vite": "./dist/vite.mjs",
     "./package.json": "./package.json"
@@ -35,8 +36,12 @@
     "@atproto/oauth-types": "*",
     "@atproto/syntax": "*",
     "@atproto/xrpc": "*",
+    "@cloudflare/vite-plugin": "*",
+    "@microlabs/otel-cf-workers": "*",
+    "@opentelemetry/api": "*",
     "@vitejs/plugin-react": "*",
     "@vitejs/plugin-rsc": "*",
+    "isbot": "*",
     "react": "*",
     "react-dom": "*",
     "react-router": "*",
@@ -51,6 +56,8 @@
     "@atproto/oauth-types": "0.4.1",
     "@atproto/syntax": "0.4.1",
     "@atproto/xrpc": "0.7.5",
+    "@microlabs/otel-cf-workers": "1.0.0-rc.52",
+    "@opentelemetry/api": "1.9.0",
     "@types/node": "24.5.2",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
@@ -67,7 +74,6 @@
     "wrangler": "4.53.0"
   },
   "dependencies": {
-    "@cloudflare/vite-plugin": "1.13.7",
     "dpop": "2.1.1",
     "unstorage": "1.17.1"
   }

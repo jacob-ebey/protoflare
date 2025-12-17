@@ -1,18 +1,13 @@
+import * as sentry from "@sentry/cloudflare";
 import { handleRequest } from "protoflare/server";
 
-import {
-  instrument,
-  isRequest,
-  type ResolveConfigFn,
-} from "@microlabs/otel-cf-workers";
 import { AtpBaseClient } from "#lexicons";
 import {
   oauthCallbackPathname,
   oauthClientMeatadataPathname,
   routes,
 } from "#routes";
-
-export { JetstreamConsumer } from "#storage/jetstream";
+import { JetstreamConsumer as JetstreamConsumerDO } from "#storage/jetstream";
 
 declare global {
   namespace ProtoflareServer {
@@ -24,33 +19,27 @@ declare global {
   }
 }
 
-const otelConfig: ResolveConfigFn<Env> = (env, trigger) => {
-  const baseName = "at-garden-club";
-  const name = isRequest(trigger) ? baseName : `${baseName}:JetstreamConsumer`;
+function sentryOptions(environment: string) {
+  return (env: Env): sentry.CloudflareOptions => ({
+    environment,
+    dsn: env.SENTRY_DSN,
+    release: env.CF_VERSION_METADATA.id,
+    tracesSampleRate: 1.0,
+    enableLogs: true,
+    sendDefaultPii: false,
+    integrations: [
+      sentry.consoleLoggingIntegration(),
+      sentry.eventFiltersIntegration(),
+    ],
+  });
+}
 
-  // Safe default: if no exporter is configured, record nothing and export nothing.
-  if (!env.HONEYCOMB_API_KEY) {
-    return {
-      exporter: {
-        async export() {},
-        async shutdown() {},
-        async forceFlush() {},
-      },
-      sampling: { headSampler: { ratio: 0 }, tailSampler: () => false },
-      service: { name },
-    };
-  }
+export const JetstreamConsumer = sentry.instrumentDurableObjectWithSentry(
+  sentryOptions("JetstreamConsumer"),
+  JetstreamConsumerDO,
+);
 
-  return {
-    exporter: {
-      url: "https://api.honeycomb.io/v1/traces",
-      headers: { "x-honeycomb-team": env.HONEYCOMB_API_KEY },
-    },
-    service: { name },
-  };
-};
-
-const handler = {
+export default sentry.withSentry<Env>(sentryOptions("worker"), {
   async fetch(request, env) {
     if (!env.SESSION_SECRET) {
       console.error("SESSION_SECRET is not set");
@@ -69,9 +58,8 @@ const handler = {
       oauthClientMeatadataPathname,
       request,
       routes,
+      routeDiscovery: "lazy",
       sessionSecrets: [env.SESSION_SECRET],
     });
   },
-} satisfies ExportedHandler<Env>;
-
-export default instrument(handler, otelConfig);
+} satisfies ExportedHandler<Env>);

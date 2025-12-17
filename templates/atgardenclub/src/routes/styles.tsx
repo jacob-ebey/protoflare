@@ -23,8 +23,6 @@ export default async function AllStyles() {
   const request = getRequest();
   const url = new URL(request.url);
 
-  const jetstream = env.JETSTREAM_CONSUMER.getByName("main");
-
   const cursor = url.searchParams.get("cursor");
   const stylesLimit = 20;
   const [{ cursor: newCursor, results }, lastUpdatedTimestampMilliseconds] =

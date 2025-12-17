@@ -6,6 +6,7 @@ import {
   FetchHandler,
   FetchHandlerOptions,
 } from "@atproto/xrpc";
+import * as otel from "@opentelemetry/api";
 import {
   createTemporaryReferenceSet,
   decodeAction,
@@ -27,6 +28,7 @@ import { createUnstorageCache } from "vite-plugin-react-use-cache/unstorage";
 import { createStorage } from "unstorage";
 
 import { provideAtProtoContext } from "./atproto";
+import { traceable } from "./otel";
 import { provideRequestContext } from "./request";
 import { provideSessionContext } from "./session";
 
@@ -46,6 +48,8 @@ declare global {
     export interface XrpcClient extends BaseXrpcClient {}
   }
 }
+
+const trace = otel.trace.getTracer("protoflare");
 
 export function cacheTag(tag: string): void {
   return cacheTagRuntime(btoa(tag));
@@ -85,7 +89,7 @@ export function callServer({
           oauthClientMeatadataPathname,
           request,
         },
-        () => {
+        traceable(trace, "matchRSCServerRequest", () => {
           return matchRSCServerRequest({
             createTemporaryReferenceSet,
             decodeAction,
@@ -107,23 +111,41 @@ export function callServer({
               );
             },
           });
-        },
+        }),
       ),
     ),
   );
 }
 
-export async function prerender(
-  request: Request,
-  serverResponse: Response,
-  hydrate: boolean,
-) {
-  const ssr = await import.meta.viteRsc.loadModule<
-    typeof import("./entry.ssr")
-  >("ssr", "index");
+export const prerender = traceable(
+  trace,
+  "prerender",
+  async function (
+    this: otel.Span,
+    {
+      request,
+      serverResponse,
+      hydrate,
+      routeDiscovery,
+    }: {
+      request: Request;
+      serverResponse: Response;
+      hydrate: boolean;
+      routeDiscovery?: "lazy" | "eager";
+    },
+  ) {
+    const ssr = await import.meta.viteRsc.loadModule<
+      typeof import("./entry.ssr")
+    >("ssr", "index");
 
-  return await ssr.prerender(request, serverResponse, hydrate);
-}
+    return await ssr.prerender(
+      request,
+      serverResponse,
+      hydrate,
+      routeDiscovery,
+    );
+  },
+);
 
 export async function handleRequest({
   AtpBaseClient,
@@ -133,6 +155,7 @@ export async function handleRequest({
   oauthClientMeatadataPathname,
   request,
   routes,
+  routeDiscovery,
   sessionSecrets,
 }: {
   AtpBaseClient: new (
@@ -144,6 +167,7 @@ export async function handleRequest({
   oauthClientMeatadataPathname: string;
   request: Request;
   routes: RSCRouteConfig;
+  routeDiscovery?: "lazy" | "eager";
   sessionSecrets: string[];
 }) {
   try {
@@ -174,7 +198,12 @@ export async function handleRequest({
     }
 
     try {
-      return await prerender(request, serverResponse, hydrate);
+      return await prerender({
+        request,
+        serverResponse,
+        hydrate,
+        routeDiscovery,
+      });
     } catch (error) {
       console.error("error during SSR prerender", error);
       throw error;

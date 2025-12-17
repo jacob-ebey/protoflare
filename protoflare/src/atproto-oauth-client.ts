@@ -12,9 +12,13 @@ import {
 } from "@atproto/oauth-types";
 import { ensureValidDid } from "@atproto/syntax";
 import { type FetchHandler, type FetchHandlerOptions } from "@atproto/xrpc";
+import * as otel from "@opentelemetry/api";
 import * as DPOP from "dpop";
 
 import { dpopFetch } from "./dpop-fetch";
+import { traceable } from "./otel";
+
+const trace = otel.trace.getTracer("protoflare");
 
 type StoredAuthState = {
   authServer: string;
@@ -124,6 +128,11 @@ export class AtprotoOAuthClient {
         return fetch(input, init);
       },
     });
+
+    this.logout = traceable(trace, "logout", this.logout.bind(this));
+    this.restore = traceable(trace, "restore", this.restore.bind(this));
+    this.authorize = traceable(trace, "authorize", this.authorize.bind(this));
+    this.exchange = traceable(trace, "exchange", this.exchange.bind(this));
   }
 
   async logout(did: string) {

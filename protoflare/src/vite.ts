@@ -59,6 +59,7 @@ export function protoflare({
                   include: [
                     "react/jsx-runtime",
                     "react/jsx-dev-runtime",
+                    "protoflare/otel",
                     "protoflare/server",
                     "react-router/internal/react-server-client",
                     "react-router > cookie",
@@ -80,6 +81,7 @@ export function protoflare({
                 },
                 optimizeDeps: {
                   include: [
+                    "isbot",
                     "react/jsx-runtime",
                     "react/jsx-dev-runtime",
                     "react-router",

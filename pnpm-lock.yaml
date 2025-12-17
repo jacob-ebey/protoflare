@@ -21,7 +21,7 @@ importers:
   protoflare:
     dependencies:
       '@cloudflare/vite-plugin':
-        specifier: 1.13.7
+        specifier: '*'
         version: 1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)(terser@5.44.1))(workerd@1.20251202.0)(wrangler@4.53.0)
       '@vitejs/plugin-react':
         specifier: '*'
@@ -29,6 +29,9 @@ importers:
       dpop:
         specifier: 2.1.1
         version: 2.1.1
+      isbot:
+        specifier: '*'
+        version: 5.1.32
       unstorage:
         specifier: 1.17.1
         version: 1.17.1
@@ -48,6 +51,12 @@ importers:
       '@atproto/xrpc':
         specifier: 0.7.5
         version: 0.7.5
+      '@microlabs/otel-cf-workers':
+        specifier: 1.0.0-rc.52
+        version: 1.0.0-rc.52(@opentelemetry/api@1.9.0)
+      '@opentelemetry/api':
+        specifier: 1.9.0
+        version: 1.9.0
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -117,6 +126,9 @@ importers:
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
+      '@sentry/cloudflare':
+        specifier: 10.31.0
+        version: 10.31.0
       arktype:
         specifier: 2.1.29
         version: 2.1.29
@@ -148,6 +160,9 @@ importers:
       '@atproto/lex-cli':
         specifier: 0.9.5
         version: 0.9.5
+      '@cloudflare/vite-plugin':
+        specifier: 1.13.7
+        version: 1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)(terser@5.44.1))(workerd@1.20251202.0)(wrangler@4.53.0)
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -230,6 +245,9 @@ importers:
       '@atproto/lex-cli':
         specifier: 0.9.5
         version: 0.9.5
+      '@cloudflare/vite-plugin':
+        specifier: 1.13.7
+        version: 1.13.7(vite@7.1.10(@types/node@24.5.2)(jiti@2.6.1)(terser@5.44.1))(workerd@1.20251202.0)(wrangler@4.53.0)
       '@types/node':
         specifier: 24.5.2
         version: 24.5.2
@@ -2582,6 +2600,19 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@sentry/cloudflare@10.31.0':
+    resolution: {integrity: sha512-nL2Vr7SJ1S9ouUW+RSpQQ92pH8r2W07qBK3mwSceRsK3dQN72uYGAUjze/ynGYDvrcxOPsxPLmdifgXXJ/Wk9Q==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cloudflare/workers-types': ^4.x
+    peerDependenciesMeta:
+      '@cloudflare/workers-types':
+        optional: true
+
+  '@sentry/core@10.31.0':
+    resolution: {integrity: sha512-VTSXdyhnu3CNaSwhp/CchZRCKh1fa7byP+KClApthsppQ57w7OjXN8dDUf38K1ZCsfdTEvdEU4qCL/WnAEbd+g==}
+    engines: {node: '>=18'}
+
   '@sindresorhus/is@7.1.0':
     resolution: {integrity: sha512-7F/yz2IphV39hiS2zB4QYVkivrptHHh0K8qJJd9HhuWSdvf8AN7NpebW3CcDZDBQsUPMoDKWsY2WWgW7bqOcfA==}
     engines: {node: '>=18'}
@@ -3040,6 +3071,10 @@ packages:
 
   is-reference@3.0.3:
     resolution: {integrity: sha512-ixkJoqQvAP88E6wLydLGGqCJsrFUnqoH6HnaczB8XmDH1oaWU+xxdptvikTgaEhtZ53Ky6YXiBuUI2WXLMCwjw==}
+
+  isbot@5.1.32:
+    resolution: {integrity: sha512-VNfjM73zz2IBZmdShMfAUg10prm6t7HFUQmNAEOAVS4YH92ZrZcvkMcGX6cIgBJAzWDzPent/EeAtYEHNPNPBQ==}
+    engines: {node: '>=18'}
 
   iso-datestring-validator@2.2.2:
     resolution: {integrity: sha512-yLEMkBbLZTlVQqOnQ4FiMujR6T4DEcCb1xizmvXS+OxuhwcbtynoosRzdMA69zZCShCNAbi+gJ71FxZBBXx1SA==}
@@ -6830,6 +6865,13 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.52.0':
     optional: true
 
+  '@sentry/cloudflare@10.31.0':
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@sentry/core': 10.31.0
+
+  '@sentry/core@10.31.0': {}
+
   '@sindresorhus/is@7.1.0': {}
 
   '@speed-highlight/core@1.2.7': {}
@@ -7333,6 +7375,8 @@ snapshots:
   is-reference@3.0.3:
     dependencies:
       '@types/estree': 1.0.8
+
+  isbot@5.1.32: {}
 
   iso-datestring-validator@2.2.2: {}
 

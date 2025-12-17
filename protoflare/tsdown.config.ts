@@ -6,6 +6,7 @@ export default defineConfig({
   entry: [
     "src/entry.browser.tsx",
     "src/entry.ssr.tsx",
+    "src/otel.ts",
     "src/server.ts",
     "src/vite.ts",
   ],
