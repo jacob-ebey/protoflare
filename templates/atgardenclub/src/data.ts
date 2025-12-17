@@ -33,10 +33,13 @@ export const getLastEventTime = cache(async () => {
   return await trace
     .getTracer("at-garden-club")
     .startActiveSpan("getLastEventTime", async (span) => {
-      const jetstream = env.JETSTREAM_CONSUMER.getByName("main");
-      const result = await jetstream.getLastEventTime();
-      span.end();
-      return result;
+      try {
+        const jetstream = env.JETSTREAM_CONSUMER.getByName("main");
+        const result = await jetstream.getLastEventTime();
+        return result;
+      } finally {
+        span.end();
+      }
     });
 });
 
@@ -46,9 +49,12 @@ const getDidFromHandle = cache<typeof resolveDidFromHandle>(async (...args) => {
   return await trace
     .getTracer("at-garden-club")
     .startActiveSpan("getDidFromHandle", async (span) => {
-      const did = await resolveDidFromHandle(...args);
-      span.end();
-      return did;
+      try {
+        const did = await resolveDidFromHandle(...args);
+        return did;
+      } finally {
+        span.end();
+      }
     });
 });
 
@@ -59,15 +65,18 @@ export const getDidDocument = cache(
     return await trace
       .getTracer("at-garden-club")
       .startActiveSpan("getDidDocument", async (span) => {
-        const didDocument = await resolveDidDocument(...args);
-        const result = {
-          ...didDocument,
-          displayName:
-            didDocument.alsoKnownAs?.[0]?.replace(/^at:\/\//, "") ||
-            didDocument.id,
-        } satisfies typeof didDocument & { displayName: string };
-        span.end();
-        return result;
+        try {
+          const didDocument = await resolveDidDocument(...args);
+          const result = {
+            ...didDocument,
+            displayName:
+              didDocument.alsoKnownAs?.[0]?.replace(/^at:\/\//, "") ||
+              didDocument.id,
+          } satisfies typeof didDocument & { displayName: string };
+          return result;
+        } finally {
+          span.end();
+        }
       });
   },
 );
@@ -76,13 +85,16 @@ export const getDidFromDidOrHandle = cache(async (didOrHandle: string) => {
   return await trace
     .getTracer("at-garden-club")
     .startActiveSpan("getDidFromDidOrHandle", async (span) => {
-      if (didOrHandle.startsWith("did:")) {
-        return didOrHandle;
-      }
+      try {
+        if (didOrHandle.startsWith("did:")) {
+          return didOrHandle;
+        }
 
-      const did = await getDidFromHandle(didOrHandle);
-      span.end();
-      return did;
+        const did = await getDidFromHandle(didOrHandle);
+        return did;
+      } finally {
+        span.end();
+      }
     });
 });
 
@@ -110,30 +122,33 @@ export const getStyle = cache(
     return await trace
       .getTracer("at-garden-club")
       .startActiveSpan("getStyle", async (span) => {
-        const result = await env.DB.prepare(
-          sql`
+        try {
+          const result = await env.DB.prepare(
+            sql`
             SELECT uri, authorDid, title, styles, createdAt, indexedAt
             FROM stylestage
             WHERE uri = ?
             LIMIT 1
           `,
-        )
-          .bind(`at://${userDid}/club.atgarden.stylestage/${rkey}`)
-          .first<StyleStage>();
+          )
+            .bind(`at://${userDid}/club.atgarden.stylestage/${rkey}`)
+            .first<StyleStage>();
 
-        const res = result
-          ? {
-              authorDid: result.authorDid,
-              title: result.title,
-              styles: result.styles,
-              createdAt: result.createdAt,
-              indexedAt: result.indexedAt,
-              uri: result.uri,
-            }
-          : undefined;
+          const res = result
+            ? {
+                authorDid: result.authorDid,
+                title: result.title,
+                styles: result.styles,
+                createdAt: result.createdAt,
+                indexedAt: result.indexedAt,
+                uri: result.uri,
+              }
+            : undefined;
 
-        span.end();
-        return res;
+          return res;
+        } finally {
+          span.end();
+        }
       });
   },
 );
@@ -148,47 +163,50 @@ export const listStyles = cache(
     return await trace
       .getTracer("at-garden-club")
       .startActiveSpan("listStyles", async (span) => {
-        const decoded = decodeCursor(cursor);
+        try {
+          const decoded = decodeCursor(cursor);
 
-        let results: (StyleStagePreview & { id: number })[];
-        if (!decoded) {
-          results = await env.DB.prepare(
-            sql`
+          let results: (StyleStagePreview & { id: number })[];
+          if (!decoded) {
+            results = await env.DB.prepare(
+              sql`
               SELECT id, uri, authorDid, createdAt, title FROM stylestage
               ORDER BY createdAt DESC, id DESC
               LIMIT ?
             `,
-          )
-            .bind(limit)
-            .all<StyleStagePreview & { id: number }>()
-            .then((r) => r.results);
-        } else {
-          results = await env.DB.prepare(
-            sql`
+            )
+              .bind(limit)
+              .all<StyleStagePreview & { id: number }>()
+              .then((r) => r.results);
+          } else {
+            results = await env.DB.prepare(
+              sql`
               SELECT id, uri, authorDid, createdAt, title FROM stylestage
               WHERE (createdAt, id) < (?, ?)
               ORDER BY createdAt DESC, id DESC
               LIMIT ?
             `,
-          )
-            .bind(decoded.createdAt, decoded.id, limit)
-            .all<StyleStagePreview & { id: number }>()
-            .then((r) => r.results);
+            )
+              .bind(decoded.createdAt, decoded.id, limit)
+              .all<StyleStagePreview & { id: number }>()
+              .then((r) => r.results);
+          }
+
+          const lastResult = results.at(-1);
+          const res = {
+            cursor: lastResult ? encodeCursor(lastResult) : undefined,
+            results: results.map(({ authorDid, createdAt, title, uri }) => ({
+              authorDid,
+              createdAt,
+              title,
+              uri,
+            })),
+          };
+
+          return res;
+        } finally {
+          span.end();
         }
-
-        const lastResult = results.at(-1);
-        const res = {
-          cursor: lastResult ? encodeCursor(lastResult) : undefined,
-          results: results.map(({ authorDid, createdAt, title, uri }) => ({
-            authorDid,
-            createdAt,
-            title,
-            uri,
-          })),
-        };
-
-        span.end();
-        return res;
       });
   },
 );
@@ -198,27 +216,30 @@ export const listUserStyles = cache(
     return await trace
       .getTracer("at-garden-club")
       .startActiveSpan("listUserStyles", async (span) => {
-        const results = await env.DB.prepare(
-          sql`
+        try {
+          const results = await env.DB.prepare(
+            sql`
             SELECT id, uri, authorDid, createdAt, title FROM stylestage
             WHERE authorDid = ?
             ORDER BY createdAt DESC
           `,
-        )
-          .bind(userDid)
-          .all<StyleStagePreview>();
+          )
+            .bind(userDid)
+            .all<StyleStagePreview>();
 
-        const res = results.results.map(
-          ({ authorDid, createdAt, title, uri }) => ({
-            authorDid,
-            createdAt,
-            title,
-            uri,
-          }),
-        );
+          const res = results.results.map(
+            ({ authorDid, createdAt, title, uri }) => ({
+              authorDid,
+              createdAt,
+              title,
+              uri,
+            }),
+          );
 
-        span.end();
-        return res;
+          return res;
+        } finally {
+          span.end();
+        }
       });
   },
 );
