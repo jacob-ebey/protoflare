@@ -1,9 +1,14 @@
 import { env } from "cloudflare:workers";
 
 import * as otel from "@opentelemetry/api";
+import * as sentry from "@sentry/cloudflare";
 import { cache } from "react";
 import { traceable } from "protoflare/otel";
 import { resolveDidDocument, resolveDidFromHandle } from "protoflare/server";
+
+function getDb(): typeof env.DB {
+  return sentry.instrumentD1WithSentry(env.DB);
+}
 
 type Cursor = { id: number; createdAt: string };
 
@@ -39,11 +44,11 @@ export const getLastEventTime = cache(
   }),
 );
 
-const getDidFromHandle = cache<typeof resolveDidFromHandle>(
-  traceable(trace, "getDidFromHandle", async (...args) => {
+const getDidFromHandle = cache(
+  traceable(trace, "getDidFromHandle", (async (handle) => {
     "use cache";
-    return await resolveDidFromHandle(...args);
-  }),
+    return await resolveDidFromHandle(handle);
+  }) as typeof resolveDidFromHandle),
 );
 
 export const getDidDocument = cache(
@@ -92,14 +97,15 @@ export const getStyle = cache(
     trace,
     "getStyle",
     async (userDid: string, rkey: string): Promise<StyleStage | undefined> => {
-      const result = await env.DB.prepare(
-        sql`
+      const result = await getDb()
+        .prepare(
+          sql`
           SELECT uri, authorDid, title, styles, createdAt, indexedAt
           FROM stylestage
           WHERE uri = ?
           LIMIT 1
         `,
-      )
+        )
         .bind(`at://${userDid}/club.atgarden.stylestage/${rkey}`)
         .first<StyleStage>();
 
@@ -131,25 +137,27 @@ export const listStyles = cache(
 
       let results: (StyleStagePreview & { id: number })[];
       if (!decoded) {
-        results = await env.DB.prepare(
-          sql`
+        results = await getDb()
+          .prepare(
+            sql`
           SELECT id, uri, authorDid, createdAt, title FROM stylestage
           ORDER BY createdAt DESC, id DESC
           LIMIT ?
         `,
-        )
+          )
           .bind(limit)
           .all<StyleStagePreview & { id: number }>()
           .then((r) => r.results);
       } else {
-        results = await env.DB.prepare(
-          sql`
+        results = await getDb()
+          .prepare(
+            sql`
             SELECT id, uri, authorDid, createdAt, title FROM stylestage
             WHERE (createdAt, id) < (?, ?)
             ORDER BY createdAt DESC, id DESC
             LIMIT ?
           `,
-        )
+          )
           .bind(decoded.createdAt, decoded.id, limit)
           .all<StyleStagePreview & { id: number }>()
           .then((r) => r.results);
@@ -174,13 +182,14 @@ export const listUserStyles = cache(
     trace,
     "listUserStyles",
     async (userDid: string): Promise<StyleStagePreview[]> => {
-      const results = await env.DB.prepare(
-        sql`
+      const results = await getDb()
+        .prepare(
+          sql`
           SELECT id, uri, authorDid, createdAt, title FROM stylestage
           WHERE authorDid = ?
           ORDER BY createdAt DESC
         `,
-      )
+        )
         .bind(userDid)
         .all<StyleStagePreview>();
 

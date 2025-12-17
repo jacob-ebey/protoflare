@@ -3,6 +3,7 @@
 import { env } from "cloudflare:workers";
 
 import { TID } from "@atproto/common-web";
+import * as sentry from "@sentry/cloudflare";
 import autoprefixer from "autoprefixer";
 import postcss from "postcss";
 import {
@@ -18,6 +19,10 @@ import * as StyleStage from "#lexicons/types/club/atgarden/stylestage";
 import { formAction, type FormActionResult } from "#lib/actions";
 
 const sql = String.raw;
+
+function getDb(): typeof env.DB {
+  return sentry.instrumentD1WithSentry(env.DB);
+}
 
 export async function loginAction(
   _: unknown,
@@ -102,13 +107,14 @@ export async function submitStyleAction(_: unknown, formData: FormData) {
         });
       }
 
-      const res = await env.DB.prepare(
-        sql`
+      const res = await getDb()
+        .prepare(
+          sql`
           INSERT INTO stylestage(
             uri, authorDid, title, styles, createdAt, indexedAt
           ) VALUES (?, ?, ?, ?, ?, ?)
         `,
-      )
+        )
         .bind(
           record.uri,
           user.did,
