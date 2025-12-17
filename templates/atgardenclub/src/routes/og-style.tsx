@@ -1,3 +1,4 @@
+import { preload, preinit } from "react-dom";
 import { href, type Register } from "react-router";
 
 import { Main, Shell } from "#components/layout";
@@ -15,6 +16,10 @@ export default function OgStyle({
   const style = ogStyles.find((style) => style.id === id);
   if (!style) throw new Response("", { status: 404 });
 
+  const stylesheet = `https://stylestage.dev/styles/css/${id}.css`;
+  preinit(stylesheet, { as: "style" });
+  preload(stylesheet, { as: "style" });
+
   return (
     <>
       <title>{`${style.name} | AT Garden Club`}</title>
@@ -22,10 +27,7 @@ export default function OgStyle({
         name="description"
         content={`View ${style.name} by ${style.by} - an original Style Stage CSS design. Get inspired for your own AT Garden Club submission!`}
       />
-      <link
-        rel="stylesheet"
-        href={`https://stylestage.dev/styles/css/${id}.css`}
-      />
+      <link rel="stylesheet" href={stylesheet} />
 
       <Shell
         title="AT Garden Club"
